@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  notification-service:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb+srv://yunqmarv:yunqmarv@notifications.3wayhnm.mongodb.net/?retryWrites=true&w=majority&appName=notifications
+      - REDIS_HOST=redis-14594.c8.us-east-1-4.ec2.redns.redis-cloud.com
+      - REDIS_PORT=14594
+      - REDIS_USERNAME=default
+      - REDIS_PASSWORD=MUCyQ3fj5taB2VYafGKzBNQlqWlfPqks
+      - JWT_SECRET=your-super-secure-jwt-secret
+      - ADMIN_SECRET=your-admin-secret
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - notification-network
+
+  # Optional: Local Redis for development
+  redis-local:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - notification-network
+
+  # Optional: Local MongoDB for development
+  mongodb-local:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=notifications
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - notification-network
+
+  # Optional: MongoDB Express for database management
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb-local
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+    depends_on:
+      - mongodb-local
+    networks:
+      - notification-network
+
+  # Optional: Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    ports:
+      - "8082:8081"
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis-local:6379
+    depends_on:
+      - redis-local
+    networks:
+      - notification-network
+
+volumes:
+  mongodb-data:
+  redis-data:
+
+networks:
+  notification-network:
+    driver: bridge

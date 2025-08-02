@@ -1,0 +1,369 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# ============================================================================
+# Node.js Dependencies
+# ============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+.npm/
+.node_repl_history
+
+# ============================================================================
+# Environment Variables & Secrets
+# ============================================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging
+.env.backup
+*.env
+
+# API Keys and secrets
+secrets/
+config/secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# ============================================================================
+# Logs & Debugging
+# ============================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+lib-cov/
+
+# nyc test coverage
+.nyc_output/
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt/
+
+# Bower dependency directory (https://bower.io/)
+bower_components/
+
+# ============================================================================
+# Testing & Coverage
+# ============================================================================
+coverage/
+*.lcov
+.nyc_output/
+test-results/
+test-reports/
+junit.xml
+coverage-final.json
+
+# Jest
+jest-cache/
+.jest/
+
+# Artillery load testing results
+artillery-report-*.json
+artillery-report-*.html
+
+# ============================================================================
+# Build Outputs
+# ============================================================================
+build/
+dist/
+out/
+public/build/
+
+# Documentation
+docs/
+jsdoc/
+*.tgz
+
+# ============================================================================
+# PM2 & Process Management
+# ============================================================================
+.pm2/
+pm2-logs/
+ecosystem.config.*.js
+!ecosystem.config.js
+
+# ============================================================================
+# Database & Cache
+# ============================================================================
+# MongoDB
+*.mongodb
+*.db
+dump/
+data/
+mongodb-data/
+
+# Redis
+redis-data/
+*.rdb
+*.aof
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db3
+
+# Database backups
+backup/
+*.sql
+*.dump
+
+# ============================================================================
+# Docker & Containerization
+# ============================================================================
+.dockerignore
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+.docker/
+docker-data/
+
+# ============================================================================
+# Operating System
+# ============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.nfs*
+
+# ============================================================================
+# IDE & Editor Files
+# ============================================================================
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*.swn
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ============================================================================
+# Microservice Specific
+# ============================================================================
+# Notification service specific
+notification-data/
+queue-data/
+temp-uploads/
+temp-files/
+uploads/
+
+# Email templates cache
+email-templates-cache/
+compiled-templates/
+
+# Analytics & metrics
+analytics-data/
+metrics/
+*.metrics
+
+# Message queues
+mq-data/
+rabbitmq-data/
+kafka-data/
+
+# ============================================================================
+# Security & Compliance
+# ============================================================================
+# Security scan results
+security-reports/
+vulnerability-reports/
+*.sarif
+
+# Certificates
+*.crt
+*.ca-bundle
+*.p7b
+*.p7s
+ssl/
+certs/
+
+# ============================================================================
+# Temporary Files
+# ============================================================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# OS generated files
+.thumbnails/
+.Trash-*
+
+# ============================================================================
+# Performance & Profiling
+# ============================================================================
+# V8 snapshots
+*.heapsnapshot
+*.cpuprofile
+
+# Memory dumps
+*.dmp
+
+# Performance monitoring
+newrelic_agent.log
+.newrelic/
+
+# ============================================================================
+# Backup Files
+# ============================================================================
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+
+# ============================================================================
+# Package managers
+# ============================================================================
+.pnp.*
+.yarn-integrity
+.yarn/
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ============================================================================
+# Build tools
+# ============================================================================
+.grunt/
+.eslintcache
+.stylelintcache
+
+# ============================================================================
+# Local development
+# ============================================================================
+local/
+local-data/
+dev-data/
+development-files/
+.local/
+
+# Custom local configuration
+config/local.js
+config/development.local.js
+config/test.local.js
+
+# ============================================================================
+# Monitoring & Health Checks
+# ============================================================================
+health-check-results/
+monitoring-data/
+metrics-data/
+
+# ============================================================================
+# Third-party integrations
+# ============================================================================
+# Kafka
+__consumer_offsets*
+kafka-logs/
+
+# RabbitMQ
+mnesia/
+
+# ============================================================================
+# Cloud & Deployment
+# ============================================================================
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Kubernetes
+*.kubeconfig
+
+# AWS
+.aws/
+
+# GCP
+.gcp/
+gcp-key.json
+
+# Azure
+.azure/
+
+# ============================================================================
+# Generated files
+# ============================================================================
+# Auto-generated documentation
+api-docs/
+openapi.json
+swagger.json
+
+# Auto-generated client libraries
+generated/
+clients/generated/
+
+# ============================================================================
+# Additional custom patterns
+# ============================================================================
+# Add any project-specific patterns here
+# Example:
+# custom-folder/
+# *.custom-extension
