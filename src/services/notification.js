@@ -31,9 +31,77 @@ class NotificationService {
             // Set expiration date
             const expiresAt = notificationData.expiresAt || 
                 new Date(Date.now() + (defaultTTL * 1000));
+
+            // Determine if inApp is enabled - handle both boolean and object formats
+            const inAppEnabled = typeof notificationData.channels?.inApp === 'boolean' 
+                ? notificationData.channels.inApp
+                : notificationData.channels?.inApp?.enabled ?? SettingsService.get('notifications.enableInApp', true);
             
-            // Create notification object
-            const notification = new Notification({
+            // Create notification object for channels configuration
+            const channelsConfig = {
+                push: {
+                    enabled: typeof notificationData.channels?.push === 'boolean'
+                        ? notificationData.channels.push
+                        : notificationData.channels?.push?.enabled ?? SettingsService.get('notifications.enablePush', true)
+                },
+                email: {
+                    enabled: typeof notificationData.channels?.email === 'boolean'
+                        ? notificationData.channels.email
+                        : notificationData.channels?.email?.enabled ?? SettingsService.get('notifications.enableEmail', false)
+                },
+                sms: {
+                    enabled: typeof notificationData.channels?.sms === 'boolean'
+                        ? notificationData.channels.sms
+                        : notificationData.channels?.sms?.enabled ?? SettingsService.get('notifications.enableSMS', false)
+                },
+                websocket: {
+                    enabled: typeof notificationData.channels?.websocket === 'boolean'
+                        ? notificationData.channels.websocket
+                        : notificationData.channels?.websocket?.enabled ?? SettingsService.get('notifications.enableWebSocket', true)
+                },
+                inApp: {
+                    enabled: inAppEnabled
+                }
+            };
+
+            let savedNotification = null;
+
+            // Only save to database if inApp is enabled
+            if (inAppEnabled) {
+                // Create notification object
+                const notification = new Notification({
+                    notificationId,
+                    userId: notificationData.userId,
+                    title: notificationData.title,
+                    message: notificationData.message,
+                    type: notificationData.type,
+                    priority: notificationData.priority || 'normal',
+                    metadata: notificationData.metadata || {},
+                    channels: {
+                        ...channelsConfig,
+                        inApp: {
+                            enabled: true,
+                            sent: true,
+                            sentAt: new Date()
+                        }
+                    },
+                    scheduling: notificationData.scheduling || {},
+                    grouping: notificationData.grouping || {},
+                    expiresAt
+                });
+
+                // Check user notification limit
+                await this.enforceUserNotificationLimit(notificationData.userId, maxPerUser);
+
+                // Save to database
+                savedNotification = await notification.save();
+                
+                // Invalidate cache
+                await this.invalidateUserCache(notificationData.userId);
+            }
+
+            // Create a notification object for delivery (even if not saved to DB)
+            const deliveryNotification = {
                 notificationId,
                 userId: notificationData.userId,
                 title: notificationData.title,
@@ -41,45 +109,12 @@ class NotificationService {
                 type: notificationData.type,
                 priority: notificationData.priority || 'normal',
                 metadata: notificationData.metadata || {},
-                channels: {
-                    push: {
-                        enabled: notificationData.channels?.push?.enabled ?? 
-                               SettingsService.get('notifications.enablePush', true)
-                    },
-                    email: {
-                        enabled: notificationData.channels?.email?.enabled ?? 
-                               SettingsService.get('notifications.enableEmail', false)
-                    },
-                    sms: {
-                        enabled: notificationData.channels?.sms?.enabled ?? 
-                               SettingsService.get('notifications.enableSMS', false)
-                    },
-                    websocket: {
-                        enabled: notificationData.channels?.websocket?.enabled ?? 
-                               SettingsService.get('notifications.enableWebSocket', true)
-                    },
-                    inApp: {
-                        enabled: true,
-                        sent: true,
-                        sentAt: new Date()
-                    }
-                },
-                scheduling: notificationData.scheduling || {},
-                grouping: notificationData.grouping || {},
-                expiresAt
-            });
-
-            // Check user notification limit
-            await this.enforceUserNotificationLimit(notificationData.userId, maxPerUser);
-
-            // Save to database
-            const savedNotification = await notification.save();
+                channels: channelsConfig,
+                createdAt: new Date()
+            };
             
-            // Invalidate cache
-            await this.invalidateUserCache(notificationData.userId);
-            
-            // Send through enabled channels
-            await this.deliverNotification(savedNotification);
+            // Send through enabled channels (excluding inApp if not saved to DB)
+            await this.deliverNotification(deliveryNotification);
             
             // Collect metrics
             const duration = Date.now() - startTime;
@@ -92,10 +127,17 @@ class NotificationService {
             Logger.logNotificationEvent('notification_created', notificationId, notificationData.userId, {
                 type: notificationData.type,
                 priority: notificationData.priority,
-                duration: `${duration}ms`
+                duration: `${duration}ms`,
+                savedToDatabase: inAppEnabled
             });
 
-            return savedNotification.toJSON();
+            // Return the saved notification if exists, otherwise return the delivery notification data
+            return savedNotification ? savedNotification.toJSON() : {
+                notificationId,
+                ...deliveryNotification,
+                _id: null, // Indicate it wasn't saved to DB
+                savedToDatabase: false
+            };
         } catch (error) {
             Logger.error('Error creating notification:', error);
             await MetricsCollector.recordNotificationError('creation_failed');
