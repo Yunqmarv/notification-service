@@ -699,6 +699,13 @@ class NotificationService {
         try {
             if (!EmailDeliveryService.isAvailable()) {
                 Logger.debug('Email delivery service not available');
+                await Notification.findOneAndUpdate(
+                    { notificationId: notification.notificationId },
+                    {
+                        'channels.email.sent': false,
+                        'channels.email.error': 'Email service not available'
+                    }
+                );
                 return { success: false, error: 'Email service not available' };
             }
 
@@ -717,6 +724,18 @@ class NotificationService {
                 provider: result.provider
             });
 
+            // Update the notification with successful email delivery
+            await Notification.findOneAndUpdate(
+                { notificationId: notification.notificationId },
+                {
+                    'channels.email.sent': true,
+                    'channels.email.sentAt': new Date(),
+                    'channels.email.messageId': result.messageId
+                }
+            );
+
+            await MetricsCollector.recordNotificationDelivered('email');
+
             return { 
                 success: true, 
                 messageId: result.messageId,
@@ -730,6 +749,15 @@ class NotificationService {
                 userId: notification.userId,
                 error: error.message
             });
+            
+            // Update the notification with failed email delivery
+            await Notification.findOneAndUpdate(
+                { notificationId: notification.notificationId },
+                {
+                    'channels.email.sent': false,
+                    'channels.email.error': error.message
+                }
+            );
             
             return { 
                 success: false, 
