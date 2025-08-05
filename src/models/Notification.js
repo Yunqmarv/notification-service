@@ -29,7 +29,9 @@ const notificationSchema = new mongoose.Schema({
             'message', 'match', 'like', 'superlike', 'rizz', 'connection',
             'system', 'promotional', 'reminder', 'update', 'alert',
             'warning', 'error', 'success', 'info', 'achievement',
-            'event', 'social', 'payment', 'security', 'maintenance'
+            'event', 'social', 'payment', 'security', 'maintenance',
+            // Date-related notification types
+            'date_request', 'date_accepted', 'date_declined', 'date_canceled', 'date_reminder'
         ],
         index: true
     },

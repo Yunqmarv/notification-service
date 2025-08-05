@@ -33,7 +33,7 @@ const Logger = require('../utils/logger');
  *           description: Notification message
  *         type:
  *           type: string
- *           enum: [message, match, like, superlike, rizz, connection, system, promotional, reminder, update, alert, warning, error, success, info, achievement, event, social, payment, security, maintenance]
+ *           enum: [message, match, like, superlike, rizz, connection, system, promotional, reminder, update, alert, warning, error, success, info, achievement, event, social, payment, security, maintenance, date_request, date_accepted, date_declined, date_canceled, date_reminder]
  *           description: Notification type
  *         priority:
  *           type: string
@@ -460,7 +460,7 @@ router.get('/:id', [
  *                 example: "You have a new match with Sarah"
  *               type:
  *                 type: string
- *                 enum: [message, match, like, superlike, rizz, connection, system, promotional, reminder, update, alert, warning, error, success, info, achievement, event, social, payment, security, maintenance]
+ *                 enum: [message, match, like, superlike, rizz, connection, system, promotional, reminder, update, alert, warning, error, success, info, achievement, event, social, payment, security, maintenance, date_request, date_accepted, date_declined, date_canceled, date_reminder]
  *                 example: "match"
  *               priority:
  *                 type: string
@@ -556,7 +556,7 @@ router.get('/:id', [
  *                 maxLength: 1000
  *               type:
  *                 type: string
- *                 enum: [message, match, like, superlike, rizz, connection, system, promotional, reminder, update, alert, warning, error, success, info, achievement, event, social, payment, security, maintenance]
+ *                 enum: [message, match, like, superlike, rizz, connection, system, promotional, reminder, update, alert, warning, error, success, info, achievement, event, social, payment, security, maintenance, date_request, date_accepted, date_declined, date_canceled, date_reminder]
  *               priority:
  *                 type: string
  *                 enum: [low, normal, high, urgent]
@@ -581,7 +581,8 @@ router.post('/', [
         'message', 'match', 'like', 'superlike', 'rizz', 'connection',
         'system', 'promotional', 'reminder', 'update', 'alert',
         'warning', 'error', 'success', 'info', 'achievement',
-        'event', 'social', 'payment', 'security', 'maintenance'
+        'event', 'social', 'payment', 'security', 'maintenance',
+        'date_request', 'date_accepted', 'date_declined', 'date_canceled', 'date_reminder'
     ]),
     body('priority').optional().isString().isIn(['low', 'normal', 'high', 'urgent']),
     body('metadata').optional().isObject(),
