@@ -7,6 +7,7 @@ const WebSocketNotifier = require('./websocketNotifier');
 const PushNotificationService = require('./pushNotification');
 const EmailDeliveryService = require('./emailDelivery');
 const MetricsCollector = require('./metrics');
+const DateNotificationService = require('./dateNotificationService');
 
 class NotificationService {
     constructor() {
@@ -879,6 +880,167 @@ class NotificationService {
                 message: 'Notification service health check failed',
                 error: error.message
             };
+        }
+    }
+
+    /**
+     * Send date request notification
+     * @param {Object} dateData - Date information
+     * @param {Object} requesterInfo - Requester user info
+     * @param {Object} recipientInfo - Recipient user info
+     */
+    async sendDateRequestNotification(dateData, requesterInfo, recipientInfo) {
+        try {
+            const notificationData = DateNotificationService.buildDateRequestNotification(
+                dateData, 
+                requesterInfo, 
+                recipientInfo
+            );
+            
+            Logger.info('Sending date request notification', {
+                dateId: dateData.date_id,
+                requesterId: requesterInfo.user_id,
+                recipientId: recipientInfo.user_id
+            });
+
+            return await this.createNotification(notificationData);
+        } catch (error) {
+            Logger.error('Error sending date request notification:', error, {
+                dateId: dateData.date_id,
+                requesterId: requesterInfo.user_id,
+                recipientId: recipientInfo.user_id
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * Send date accepted notification
+     * @param {Object} dateData - Date information
+     * @param {Object} requesterInfo - Requester user info
+     * @param {Object} recipientInfo - Recipient user info
+     */
+    async sendDateAcceptedNotification(dateData, requesterInfo, recipientInfo) {
+        try {
+            const notificationData = DateNotificationService.buildDateAcceptedNotification(
+                dateData, 
+                requesterInfo, 
+                recipientInfo
+            );
+            
+            Logger.info('Sending date accepted notification', {
+                dateId: dateData.date_id,
+                requesterId: requesterInfo.user_id,
+                recipientId: recipientInfo.user_id
+            });
+
+            return await this.createNotification(notificationData);
+        } catch (error) {
+            Logger.error('Error sending date accepted notification:', error, {
+                dateId: dateData.date_id,
+                requesterId: requesterInfo.user_id,
+                recipientId: recipientInfo.user_id
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * Send date declined notification
+     * @param {Object} dateData - Date information
+     * @param {Object} requesterInfo - Requester user info
+     * @param {Object} recipientInfo - Recipient user info
+     * @param {string} reason - Decline reason (optional)
+     */
+    async sendDateDeclinedNotification(dateData, requesterInfo, recipientInfo, reason = '') {
+        try {
+            const notificationData = DateNotificationService.buildDateDeclinedNotification(
+                dateData, 
+                requesterInfo, 
+                recipientInfo, 
+                reason
+            );
+            
+            Logger.info('Sending date declined notification', {
+                dateId: dateData.date_id,
+                requesterId: requesterInfo.user_id,
+                recipientId: recipientInfo.user_id,
+                reason
+            });
+
+            return await this.createNotification(notificationData);
+        } catch (error) {
+            Logger.error('Error sending date declined notification:', error, {
+                dateId: dateData.date_id,
+                requesterId: requesterInfo.user_id,
+                recipientId: recipientInfo.user_id
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * Send date canceled notification
+     * @param {Object} dateData - Date information
+     * @param {Object} requesterInfo - Requester user info
+     * @param {Object} recipientInfo - Recipient user info
+     * @param {string} reason - Cancellation reason (optional)
+     */
+    async sendDateCanceledNotification(dateData, requesterInfo, recipientInfo, reason = '') {
+        try {
+            const notificationData = DateNotificationService.buildDateCanceledNotification(
+                dateData, 
+                requesterInfo, 
+                recipientInfo, 
+                reason
+            );
+            
+            Logger.info('Sending date canceled notification', {
+                dateId: dateData.date_id,
+                requesterId: requesterInfo.user_id,
+                recipientId: recipientInfo.user_id,
+                reason
+            });
+
+            return await this.createNotification(notificationData);
+        } catch (error) {
+            Logger.error('Error sending date canceled notification:', error, {
+                dateId: dateData.date_id,
+                requesterId: requesterInfo.user_id,
+                recipientId: recipientInfo.user_id
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * Send date reminder notification
+     * @param {Object} dateData - Date information
+     * @param {Object} userInfo - User info (can be requester or recipient)
+     * @param {string} reminderType - Type of reminder (24_hours, 1_hour, etc.)
+     */
+    async sendDateReminderNotification(dateData, userInfo, reminderType) {
+        try {
+            const notificationData = DateNotificationService.buildDateReminderNotification(
+                dateData, 
+                userInfo, 
+                reminderType
+            );
+            
+            Logger.info('Sending date reminder notification', {
+                dateId: dateData.date_id,
+                userId: userInfo.user_id,
+                reminderType
+            });
+
+            return await this.createNotification(notificationData);
+        } catch (error) {
+            Logger.error('Error sending date reminder notification:', error, {
+                dateId: dateData.date_id,
+                userId: userInfo.user_id,
+                reminderType
+            });
+            throw error;
         }
     }
 }

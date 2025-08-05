@@ -2,6 +2,7 @@ const EmailClient = require('../clients/emailClient');
 const UserClient = require('../clients/userClient');
 const Logger = require('../utils/logger');
 const SettingsService = require('./settings');
+const DateNotificationService = require('./dateNotificationService');
 
 class EmailDeliveryService {
     constructor() {
@@ -238,6 +239,37 @@ class EmailDeliveryService {
                 ctaText: 'Review Security',
                 ctaUrl: '/security',
                 category: 'security'
+            },
+            // Date-related templates
+            date_request: {
+                subjectPrefix: '💖 New Date Invitation',
+                ctaText: 'View Invitation',
+                ctaUrl: '/dates/{dateId}',
+                category: 'dating'
+            },
+            date_accepted: {
+                subjectPrefix: '🎉 Date Accepted',
+                ctaText: 'View Date Details',
+                ctaUrl: '/dates/{dateId}',
+                category: 'dating'
+            },
+            date_declined: {
+                subjectPrefix: '😔 Date Declined',
+                ctaText: 'Find New Matches',
+                ctaUrl: '/discover',
+                category: 'dating'
+            },
+            date_canceled: {
+                subjectPrefix: '❌ Date Canceled',
+                ctaText: 'View Your Dates',
+                ctaUrl: '/dates',
+                category: 'dating'
+            },
+            date_reminder: {
+                subjectPrefix: '⏰ Date Reminder',
+                ctaText: 'View Date Details',
+                ctaUrl: '/dates/{dateId}',
+                category: 'dating'
             }
         };
 
@@ -268,6 +300,29 @@ class EmailDeliveryService {
      * @returns {string} - HTML content
      */
     async buildEmailHtml(notification, template, user) {
+        // Check if this is a date-related notification
+        const dateNotificationTypes = ['date_request', 'date_accepted', 'date_declined', 'date_canceled', 'date_reminder'];
+        
+        if (dateNotificationTypes.includes(notification.type)) {
+            // Use the enhanced HTML builder from DateNotificationService
+            try {
+                Logger.debug('Building date-specific email HTML', {
+                    notificationId: notification.id,
+                    type: notification.type
+                });
+                
+                return await DateNotificationService.buildDateEmailHtml(notification, user);
+            } catch (error) {
+                Logger.warn('Failed to build date-specific email HTML, falling back to standard template', {
+                    notificationId: notification.id,
+                    type: notification.type,
+                    error: error.message
+                });
+                // Fall through to standard template
+            }
+        }
+
+        // Standard HTML template for non-date notifications
         const appName = SettingsService.get('app.name', 'Your Dating App');
         const appUrl = SettingsService.get('app.url', 'https://yourapp.com');
         const userName = user?.name || user?.firstName || 'there';

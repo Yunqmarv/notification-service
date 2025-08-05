@@ -18,11 +18,11 @@ class WebSocketNotifier {
             
             // Load WebSocket configuration from settings
             this.wsConfig = {
-                host: SettingsService.get('websocket.host', 'localhost'),
-                port: SettingsService.get('websocket.port', 3002),
-                notifyEndpoint: SettingsService.get('websocket.notifyEndpoint', '/notify'),
-                enabled: SettingsService.get('notifications.enableWebSocket', true),
-                secret: SettingsService.get('server.secret.socket', '')
+                host: SettingsService.get('websocket.host'),
+                port: SettingsService.get('websocket.port'),
+                notifyEndpoint: SettingsService.get('websocket.notifyEndpoint'),
+                enabled: SettingsService.get('notifications.enableWebSocket'),
+                secret: SettingsService.get('server.secret.socket')
             };
 
             if (!this.wsConfig.enabled) {
