@@ -75,18 +75,53 @@ class RedisManager {
     }
 
     async loadConfiguration() {
-        // For now, use hardcoded values, but this will be moved to SettingsService
+        // Check if we should use Redis from environment/settings
+        const useRedis = process.env.USE_REDIS !== 'false';
+        
+        if (!useRedis) {
+            Logger.info('Redis disabled via USE_REDIS=false');
+            throw new Error('Redis disabled');
+        }
+
+        // Always start with environment variables/defaults to avoid circular dependency
+        // SettingsService will update the config later via updateConfiguration()
         this.config = {
-            host: 'redis-14594.c8.us-east-1-4.ec2.redns.redis-cloud.com',
-            port: 14594,
-            username: 'default',
-            password: 'MUCyQ3fj5taB2VYafGKzBNQlqWlfPqks',
-            database: 0
+            host: process.env.REDIS_HOST || 'redis-14594.c8.us-east-1-4.ec2.redns.redis-cloud.com',
+            port: parseInt(process.env.REDIS_PORT) || 14594,
+            username: process.env.REDIS_USERNAME || 'default',
+            password: process.env.REDIS_PASSWORD || 'MUCyQ3fj5taB2VYafGKzBNQlqWlfPqks',
+            database: parseInt(process.env.REDIS_DATABASE) || 0
         };
 
-        // TODO: Load from SettingsService once it's initialized
-        // const SettingsService = require('../services/settings');
-        // this.config = await SettingsService.get('redis', this.config);
+        Logger.info('Redis configuration loaded from environment/defaults (settings will be applied later)');
+    }
+
+    // Method to update configuration from database settings (called by SettingsService)
+    async updateConfiguration(redisSettings) {
+        if (redisSettings && redisSettings.host && redisSettings.port) {
+            const newConfig = {
+                host: redisSettings.host,
+                port: redisSettings.port,
+                username: redisSettings.username,
+                password: redisSettings.password,
+                database: redisSettings.database || 0
+            };
+
+            // Check if config has changed
+            const configChanged = JSON.stringify(this.config) !== JSON.stringify(newConfig);
+            
+            if (configChanged) {
+                Logger.info('Updating Redis configuration from database settings');
+                this.config = newConfig;
+                
+                // Reconnect with new config if already connected
+                if (this.isConnected) {
+                    Logger.info('Reconnecting to Redis with updated configuration');
+                    await this.disconnect();
+                    await this.connect();
+                }
+            }
+        }
     }
 
     setupEventListeners() {

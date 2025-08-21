@@ -438,8 +438,19 @@ class NotificationService {
                             }
                         },
                         type: { $first: '$type' },
-                        // Get the most recent notification (first in sorted order)
-                        notification: { $first: '$$ROOT' },
+                        // Get the most recent notification (first in sorted order) with limited fields
+                        notification: { 
+                            $first: {
+                                _id: '$_id',
+                                title: '$title',
+                                message: '$message',
+                                type: '$type',
+                                priority: '$priority',
+                                createdAt: '$createdAt',
+                                readStatus: '$readStatus'
+                                // Excluding metadata and other heavy fields
+                            }
+                        },
                         hasUnread: {
                             $max: {
                                 $cond: [{ $eq: ['$readStatus', false] }, true, false]

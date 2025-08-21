@@ -65,39 +65,51 @@ class ValidationMiddleware {
                 });
             }
 
-            // Get JWT secret from settings with fallback
-            const jwtSecret = SettingsService.get('security.jwtSecret') || process.env.JWT_SECRET || 'fallback-secret-for-testing';
-            
-            if (!jwtSecret) {
-                Logger.error('JWT secret not configured');
-                return res.status(500).json({
-                    success: false,
-                    message: 'Authentication configuration error'
-                });
-            }
-
-            // Verify token with timeout
-            let decoded;
-            try {
-                decoded = jwt.verify(token, jwtSecret);
-            } catch (jwtError) {
-                Logger.logSecurityEvent('invalid_token', null, req.ip, {
-                    path: req.path,
-                    error: jwtError.message
-                });
-
+            // Check if JWT has correct structure (3 parts: header.payload.signature)
+            const tokenParts = token.split('.');
+            if (tokenParts.length !== 3) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid authentication token',
-                    code: 'INVALID_TOKEN'
+                    message: 'Invalid JWT token format - token appears to be truncated',
+                    code: 'MALFORMED_TOKEN'
                 });
             }
-            
-            // Support both userId and user_id formats for compatibility
-            const userId = decoded.userId || decoded.user_id || decoded.sub;
-            
-            if (!userId) {
-                Logger.logSecurityEvent('invalid_token_payload', null, req.ip, {
+
+            // Get JWT secret from settings with fallback
+            try {
+                // Get JWT secret from database settings only
+                const jwtSecret = SettingsService.get('security.jwtSecret');
+                
+                if (!jwtSecret) {
+                    return res.status(500).json({
+                        success: false,
+                        message: 'JWT secret not configured in database settings',
+                        code: 'JWT_SECRET_MISSING'
+                    });
+                }
+
+                // Verify token with timeout
+                let decoded;
+                try {
+                    decoded = jwt.verify(token, jwtSecret);
+                } catch (jwtError) {
+                    Logger.logSecurityEvent('invalid_token', null, req.ip, {
+                        path: req.path,
+                        error: jwtError.message
+                    });
+
+                    return res.status(401).json({
+                        success: false,
+                        message: 'Invalid authentication token',
+                        code: 'INVALID_TOKEN'
+                    });
+                }
+                
+                // Support both userId and user_id formats for compatibility
+                const userId = decoded.userId || decoded.user_id || decoded.sub;
+                
+                if (!userId) {
+                    Logger.logSecurityEvent('invalid_token_payload', null, req.ip, {
                     path: req.path,
                     tokenPayload: decoded
                 });
@@ -131,13 +143,17 @@ class ValidationMiddleware {
                 });
             }
 
-            Logger.debug('User authenticated', {
-                userId: decoded.userId,
-                role: decoded.role,
-                path: req.path
-            });
-
             next();
+            
+            } catch (secretError) {
+                Logger.error('JWT secret retrieval error:', secretError);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Authentication configuration error',
+                    code: 'JWT_CONFIG_ERROR'
+                });
+            }
+            
         } catch (error) {
             if (error.name === 'JsonWebTokenError') {
                 Logger.logSecurityEvent('invalid_token', null, req.ip, {
@@ -500,10 +516,10 @@ class ValidationMiddleware {
             req.userId = 'admin-api-key';
             req.userRole = 'admin';
             
-            Logger.debug('Admin API key authenticated', {
-                path: req.path,
-                ip: req.ip
-            });
+            // Logger.debug('Admin API key authenticated', {
+            //     path: req.path,
+            //     ip: req.ip
+            // });
             
             next();
         } catch (error) {
@@ -555,10 +571,10 @@ class ValidationMiddleware {
             req.userId = 'system-api-key';
             req.userRole = 'system';
             
-            Logger.debug('System API key authenticated', {
-                path: req.path,
-                ip: req.ip
-            });
+            // Logger.debug('System API key authenticated', {
+            //     path: req.path,
+            //     ip: req.ip
+            // });
             
             next();
         } catch (error) {

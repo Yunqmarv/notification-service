@@ -7,7 +7,7 @@ class SettingsService {
         this.cache = new Map();
         this.cachePrefix = 'settings:';
         this.cacheTTL = 300; // 5 minutes
-        this.isInitialized = false;
+        this._isInitialized = false;
         this.defaultSettings = this.getDefaultSettings();
     }
 
@@ -269,7 +269,7 @@ class SettingsService {
             // Security Settings
             {
                 key: 'security.jwtSecret',
-                value: 'your-super-secret-jwt-key-change-this-in-production',
+                value: 'jhbefyuved87teedvuDUE867D5RFRDYUBEDIUEHDUYGETUYB3dygiu33ud3089y7e2e7fsv2biuduevdwudwgdcdhcdiochdcgvcDUYGET7FDUEBDOD978T67DFTEYDUEsiochecghvecbhdcbydcvgdcgyudcuichucdhjcdciuhcececuvycdcicdcdvfv',
                 type: 'string',
                 category: 'security',
                 description: 'JWT secret key',
@@ -369,7 +369,26 @@ class SettingsService {
             // Load all settings into cache
             await this.loadAllSettings();
             
-            this.isInitialized = true;
+            this._isInitialized = true;
+
+            // Update Redis configuration from database settings (breaks circular dependency)
+            try {
+                const redisConfig = {
+                    host: this.get('cache.host'),
+                    port: this.get('cache.port'),
+                    username: this.get('cache.username'),
+                    password: this.get('cache.password'),
+                    database: this.get('cache.database')
+                };
+
+                if (redisConfig.host && redisConfig.port) {
+                    await RedisManager.updateConfiguration(redisConfig);
+                    Logger.info('Updated Redis configuration from database settings');
+                }
+            } catch (redisError) {
+                Logger.warn('Could not update Redis configuration:', redisError.message);
+            }
+            
             Logger.info('✅ Settings Service initialized successfully');
         } catch (error) {
             Logger.error('❌ Failed to initialize Settings Service:', error);
@@ -717,10 +736,10 @@ class SettingsService {
 
     healthCheck() {
         return {
-            status: this.isInitialized ? 'healthy' : 'unhealthy',
-            message: this.isInitialized ? 'Settings service is healthy' : 'Settings service not initialized',
+            status: this._isInitialized ? 'healthy' : 'unhealthy',
+            message: this._isInitialized ? 'Settings service is healthy' : 'Settings service not initialized',
             cacheSize: this.cache.size,
-            initialized: this.isInitialized
+            initialized: this._isInitialized
         };
     }
 
@@ -1034,6 +1053,13 @@ class SettingsService {
             Logger.error('Error deleting setting:', error);
             throw error;
         }
+    }
+
+    /**
+     * Check if settings service is initialized
+     */
+    isInitialized() {
+        return this._isInitialized;
     }
 }
 

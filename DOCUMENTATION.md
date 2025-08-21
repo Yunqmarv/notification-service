@@ -129,7 +129,7 @@ REDIS_PASSWORD=
 REDIS_DB=0
 
 # JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_SECRET=jhbefyuved87teedvuDUE867D5RFRDYUBEDIUEHDUYGETUYB3dygiu33ud3089y7e2e7fsv2biuduevdwudwgdcdhcdiochdcgvcDUYGET7FDUEBDOD978T67DFTEYDUEsiochecghvecbhdcbydcvgdcgyudcuichucdhjcdciuhcececuvycdcicdcdvfv
 JWT_EXPIRES_IN=24h
 
 # Admin API Key
