@@ -61,14 +61,8 @@ const notificationSchema = new mongoose.Schema({
         default: null
     },
     metadata: {
-        relatedUserId: String,
-        relatedEntityId: String,
-        relatedEntityType: String,
-        actionUrl: String,
-        imageUrl: String,
-        iconUrl: String,
-        tags: [String],
-        customData: mongoose.Schema.Types.Mixed
+        type: mongoose.Schema.Types.Mixed,
+        default: {}
     },
     channels: {
         push: {
