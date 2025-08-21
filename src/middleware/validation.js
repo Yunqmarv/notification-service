@@ -93,7 +93,10 @@ class ValidationMiddleware {
                 });
             }
             
-            if (!decoded.userId) {
+            // Support both userId and user_id formats for compatibility
+            const userId = decoded.userId || decoded.user_id || decoded.sub;
+            
+            if (!userId) {
                 Logger.logSecurityEvent('invalid_token_payload', null, req.ip, {
                     path: req.path,
                     tokenPayload: decoded
@@ -101,13 +104,13 @@ class ValidationMiddleware {
 
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid token payload',
+                    message: 'Invalid token payload - missing user identifier',
                     code: 'INVALID_PAYLOAD'
                 });
             }
 
             // Add user info to request
-            req.userId = decoded.userId;
+            req.userId = userId;
             req.userRole = decoded.role || 'user';
             req.tokenExp = decoded.exp;
             req.tokenIat = decoded.iat;
