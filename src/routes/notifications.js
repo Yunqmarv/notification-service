@@ -321,7 +321,7 @@ router.get('/grouped', [
     try {
         const userId = req.userId;
         const options = {
-            includeRead: req.query.includeRead || false,
+            includeRead: req.query.includeRead !== undefined ? req.query.includeRead === 'true' : false,
             limit: req.query.limit || 10
         };
 
@@ -826,6 +826,89 @@ router.delete('/:id', [
         res.status(500).json({
             success: false,
             message: 'Failed to delete notification',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+/**
+ * @swagger
+ * /api/notifications/types/{type}:
+ *   delete:
+ *     summary: Delete all notifications of a specific type
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: type
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Notification type to delete
+ *     responses:
+ *       200:
+ *         description: Notifications deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     deletedCount:
+ *                       type: integer
+ *                     type:
+ *                       type: string
+ *       404:
+ *         description: No notifications found for this type
+ */
+router.delete('/types/:type', [
+    param('type').isString().isLength({ min: 1, max: 50 }),
+    ValidationMiddleware.handleValidation
+], async (req, res) => {
+    try {
+        const { type } = req.params;
+        const userId = req.userId;
+
+        const result = await NotificationService.deleteNotificationsByType(userId, type);
+        
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                success: false,
+                message: `No ${type} notifications found to delete`
+            });
+        }
+
+        // Clear cache
+        await CacheService.clearPattern(`notifications:${userId}:*`);
+
+        Logger.logNotificationEvent('notifications_deleted_by_type', null, userId, { 
+            type, 
+            deletedCount: result.deletedCount 
+        });
+
+        res.json({
+            success: true,
+            message: `${result.deletedCount} ${type} notification${result.deletedCount > 1 ? 's' : ''} deleted successfully`,
+            data: {
+                deletedCount: result.deletedCount,
+                type: type
+            }
+        });
+    } catch (error) {
+        Logger.error('Error deleting notifications by type:', error, { 
+            userId: req.userId, 
+            type: req.params.type 
+        });
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete notifications',
             error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }

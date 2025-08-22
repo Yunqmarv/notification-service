@@ -10,7 +10,7 @@ class DatingNotificationService {
     }
 
     /**
-     * Send a like notification with robust metadata
+     * Send a like notification with essential metadata
      */
     async sendLikeNotification(likedUserId, likerInfo, likeContext) {
         try {
@@ -27,17 +27,15 @@ class DatingNotificationService {
                     likerName: likerInfo.name,
                     likerProfilePicture: likerInfo.profile_picture,
                     
-                    // Liker demographics
+                    // Basic liker info
                     likerAge: likerInfo.age,
                     likerLocation: `${likerInfo.city}, ${likerInfo.state}`,
                     likerOccupation: likerInfo.occupation,
-                    likerEducation: likerInfo.education,
                     
                     // Compatibility & social proof
                     compatibilityScore: likeContext.compatibility_score,
                     mutualFriends: likeContext.mutual_friends_count,
                     mutualInterests: likeContext.mutual_interests,
-                    mutualFollows: likeContext.mutual_follows,
                     
                     // Like context
                     likeType: likeContext.like_type, // 'regular', 'super_like', 'boost'
@@ -45,29 +43,10 @@ class DatingNotificationService {
                     likeTimestamp: new Date().toISOString(),
                     isReciprocal: likeContext.is_reciprocal,
                     
-                    // User behavior insights
-                    likerActivityLevel: likerInfo.activity_level,
-                    likerResponseRate: likerInfo.response_rate,
-                    likerVerificationStatus: likerInfo.verification_status,
-                    
                     // Personalization data
                     suggestedIceBreakers: likeContext.suggested_ice_breakers,
                     commonTopics: likeContext.common_topics,
-                    profileStrength: likeContext.profile_strength_match,
                     
-                    // System context
-                    deviceInfo: likeContext.device_info,
-                    sessionId: likeContext.session_id,
-                    experimentGroup: likeContext.experiment_group,
-                    
-                    // Action URLs
-                    actionUrls: {
-                        viewProfile: `/profiles/${likerInfo.user_id}`,
-                        likeBack: `/users/${likerInfo.user_id}/like`,
-                        superLikeBack: `/users/${likerInfo.user_id}/super-like`,
-                        viewMutualFriends: `/users/${likerInfo.user_id}/mutual-friends`,
-                        startConversation: `/conversations/start/${likerInfo.user_id}`
-                    }
                 },
                 channels: {
                     push: true,
@@ -87,7 +66,7 @@ class DatingNotificationService {
     }
 
     /**
-     * Send a match notification with comprehensive metadata
+     * Send a match notification with essential metadata
      */
     async sendMatchNotification(userId, matchInfo) {
         try {
@@ -104,65 +83,37 @@ class DatingNotificationService {
                     partnerName: matchInfo.partner_name,
                     partnerProfilePicture: matchInfo.partner_profile_picture,
                     
-                    // Partner demographics
+                    // Partner basic info
                     partnerAge: matchInfo.partner_age,
                     partnerLocation: `${matchInfo.partner_city}, ${matchInfo.partner_state}`,
                     partnerOccupation: matchInfo.partner_occupation,
-                    partnerEducation: matchInfo.partner_education,
-                    partnerBio: matchInfo.partner_bio?.substring(0, 200),
+                    partnerBio: matchInfo.partner_bio?.substring(0, 150),
                     
                     // Match quality indicators
                     compatibilityScore: matchInfo.compatibility_score,
                     matchScore: matchInfo.match_score,
-                    personalityMatch: matchInfo.personality_match_percentage,
-                    interestAlignment: matchInfo.interest_alignment_score,
                     
                     // Social connections
                     mutualFriends: matchInfo.mutual_friends_count,
                     mutualInterests: matchInfo.mutual_interests,
-                    mutualFollows: matchInfo.mutual_follows,
                     commonActivities: matchInfo.common_activities,
                     
                     // Match context
                     matchType: matchInfo.match_type, // 'regular', 'super_match', 'boost_match'
-                    matchSource: matchInfo.source, // 'discovery', 'search', 'recommendations'
+                    matchSource: matchInfo.source,
                     matchTimestamp: new Date().toISOString(),
-                    timeToMatch: matchInfo.time_to_match_hours,
                     
                     // Conversation starters
                     suggestedIceBreakers: matchInfo.suggested_ice_breakers,
-                    conversationStarters: matchInfo.conversation_starters,
                     commonTopics: matchInfo.common_topics,
-                    sharedExperiences: matchInfo.shared_experiences,
-                    
-                    // User milestones
-                    isFirstMatch: matchInfo.is_first_match_for_user,
-                    userMatchCount: matchInfo.user_total_matches,
-                    partnerMatchCount: matchInfo.partner_total_matches,
                     
                     // Premium features
                     isPremiumMatch: matchInfo.is_premium_match,
-                    boostUsed: matchInfo.boost_used,
                     superLikeInvolved: matchInfo.super_like_involved,
                     
                     // Geographic context
                     distanceKm: matchInfo.distance_km,
                     sameCity: matchInfo.same_city,
-                    sameNeighborhood: matchInfo.same_neighborhood,
-                    
-                    // Timing insights
-                    optimalMessageTime: matchInfo.optimal_message_time,
-                    partnerActiveHours: matchInfo.partner_active_hours,
-                    responseRatePrediction: matchInfo.response_rate_prediction,
-                    
-                    // Action URLs
-                    actionUrls: {
-                        startConversation: `/conversations/start/${matchInfo.partner_id}`,
-                        viewFullProfile: `/profiles/${matchInfo.partner_id}/full`,
-                        sendGif: `/conversations/${matchInfo.partner_id}/gif`,
-                        planDate: `/dates/plan/${matchInfo.partner_id}`,
-                        viewMutualFriends: `/users/${matchInfo.partner_id}/mutual-friends`
-                    }
                 },
                 channels: {
                     push: true,
@@ -182,8 +133,421 @@ class DatingNotificationService {
     }
 
     /**
-     * Send a date request notification with extensive metadata
+     * Send a super like notification with essential metadata
      */
+    async sendSuperLikeNotification(likedUserId, superLikerInfo, superLikeContext) {
+        try {
+            const notification = {
+                userId: likedUserId,
+                title: "You got a Super Like! ⭐",
+                message: `${superLikerInfo.name} super liked you! They're really interested.`,
+                type: 'superlike',
+                priority: 'high',
+                metadata: {
+                    // Core super like data
+                    superLikeId: superLikeContext.super_like_id,
+                    superLikerId: superLikerInfo.user_id,
+                    superLikerName: superLikerInfo.name,
+                    superLikerProfilePicture: superLikerInfo.profile_picture,
+                    
+                    // Basic super liker info
+                    superLikerAge: superLikerInfo.age,
+                    superLikerLocation: `${superLikerInfo.city}, ${superLikerInfo.state}`,
+                    superLikerOccupation: superLikerInfo.occupation,
+                    
+                    // Compatibility & social proof
+                    compatibilityScore: superLikeContext.compatibility_score,
+                    mutualFriends: superLikeContext.mutual_friends_count,
+                    mutualInterests: superLikeContext.mutual_interests,
+                    
+                    // Super like context
+                    superLikeSource: superLikeContext.source,
+                    superLikeTimestamp: new Date().toISOString(),
+                    premiumUser: superLikeContext.is_premium_user,
+                    
+                    // Personalization data
+                    suggestedIceBreakers: superLikeContext.suggested_ice_breakers,
+                    commonTopics: superLikeContext.common_topics,
+                },
+                channels: {
+                    push: true,
+                    email: true,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Super like notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send super like notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a rizz notification with essential metadata
+     */
+    async sendRizzNotification(recipientUserId, rizzSenderInfo, rizzContext) {
+        try {
+            const notification = {
+                userId: recipientUserId,
+                title: "Someone's got rizz! 🔥",
+                message: `${rizzSenderInfo.name} sent you some serious rizz!`,
+                type: 'rizz',
+                priority: 'normal',
+                metadata: {
+                    // Core rizz data
+                    rizzId: rizzContext.rizz_id,
+                    senderId: rizzSenderInfo.user_id,
+                    senderName: rizzSenderInfo.name,
+                    senderProfilePicture: rizzSenderInfo.profile_picture,
+                    
+                    // Rizz content
+                    rizzMessage: rizzContext.rizz_message,
+                    rizzType: rizzContext.rizz_type, // 'pickup_line', 'compliment', 'funny', 'smooth'
+                    rizzRating: rizzContext.rizz_rating,
+                    
+                    // Sender info
+                    senderAge: rizzSenderInfo.age,
+                    senderLocation: `${rizzSenderInfo.city}, ${rizzSenderInfo.state}`,
+                    senderOccupation: rizzSenderInfo.occupation,
+                    
+                    // Context
+                    compatibilityScore: rizzContext.compatibility_score,
+                    mutualInterests: rizzContext.mutual_interests,
+                    rizzTimestamp: new Date().toISOString(),
+                },
+                channels: {
+                    push: true,
+                    email: false,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Rizz notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send rizz notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a connection request notification
+     */
+    async sendConnectionNotification(recipientUserId, connectionInfo) {
+        try {
+            const notification = {
+                userId: recipientUserId,
+                title: "New Connection Request 🤝",
+                message: `${connectionInfo.sender_name} wants to connect with you!`,
+                type: 'connection',
+                priority: 'normal',
+                metadata: {
+                    // Connection data
+                    connectionId: connectionInfo.connection_id,
+                    senderId: connectionInfo.sender_id,
+                    senderName: connectionInfo.sender_name,
+                    senderProfilePicture: connectionInfo.sender_profile_picture,
+                    
+                    // Sender info
+                    senderAge: connectionInfo.sender_age,
+                    senderLocation: connectionInfo.sender_location,
+                    senderOccupation: connectionInfo.sender_occupation,
+                    senderVerified: connectionInfo.sender_verified,
+                    
+                    // Connection context
+                    connectionType: connectionInfo.connection_type, // 'friend', 'professional', 'dating'
+                    connectionReason: connectionInfo.connection_reason,
+                    mutualConnections: connectionInfo.mutual_connections,
+                    mutualInterests: connectionInfo.mutual_interests,
+                    
+                    connectionTimestamp: new Date().toISOString(),
+                },
+                channels: {
+                    push: true,
+                    email: true,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Connection notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send connection notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a system notification
+     */
+    async sendSystemNotification(userId, systemInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: systemInfo.title,
+                message: systemInfo.message,
+                type: 'system',
+                priority: systemInfo.priority || 'normal',
+                metadata: {
+                    systemType: systemInfo.system_type, // 'maintenance', 'update', 'announcement'
+                    actionRequired: systemInfo.action_required,
+                    actionUrl: systemInfo.action_url,
+                    systemTimestamp: new Date().toISOString(),
+                    version: systemInfo.app_version,
+                    platform: systemInfo.platform,
+                },
+                channels: {
+                    push: true,
+                    email: systemInfo.send_email || false,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ System notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send system notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a promotional notification
+     */
+    async sendPromotionalNotification(userId, promoInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: promoInfo.title,
+                message: promoInfo.message,
+                type: 'promotional',
+                priority: 'low',
+                metadata: {
+                    promoId: promoInfo.promo_id,
+                    promoType: promoInfo.promo_type, // 'discount', 'feature', 'subscription'
+                    discountPercentage: promoInfo.discount_percentage,
+                    promoCode: promoInfo.promo_code,
+                    validUntil: promoInfo.valid_until,
+                    targetFeature: promoInfo.target_feature,
+                    callToAction: promoInfo.call_to_action,
+                    promoUrl: promoInfo.promo_url,
+                    promoTimestamp: new Date().toISOString(),
+                },
+                channels: {
+                    push: true,
+                    email: true,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Promotional notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send promotional notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send an update notification
+     */
+    async sendUpdateNotification(userId, updateInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: updateInfo.title,
+                message: updateInfo.message,
+                type: 'update',
+                priority: updateInfo.priority || 'normal',
+                metadata: {
+                    updateType: updateInfo.update_type, // 'profile', 'preferences', 'security'
+                    updateCategory: updateInfo.update_category,
+                    actionRequired: updateInfo.action_required,
+                    actionUrl: updateInfo.action_url,
+                    completionStatus: updateInfo.completion_status,
+                    nextSteps: updateInfo.next_steps,
+                    updateTimestamp: new Date().toISOString(),
+                },
+                channels: {
+                    push: true,
+                    email: updateInfo.send_email || false,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Update notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send update notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send an alert notification
+     */
+    async sendAlertNotification(userId, alertInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: alertInfo.title,
+                message: alertInfo.message,
+                type: 'alert',
+                priority: 'high',
+                metadata: {
+                    alertType: alertInfo.alert_type, // 'security', 'safety', 'violation'
+                    alertSeverity: alertInfo.alert_severity, // 'low', 'medium', 'high', 'critical'
+                    alertCategory: alertInfo.alert_category,
+                    actionRequired: alertInfo.action_required,
+                    actionUrl: alertInfo.action_url,
+                    incidentId: alertInfo.incident_id,
+                    alertTimestamp: new Date().toISOString(),
+                },
+                channels: {
+                    push: true,
+                    email: true,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Alert notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send alert notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a payment notification
+     */
+    async sendPaymentNotification(userId, paymentInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: paymentInfo.title,
+                message: paymentInfo.message,
+                type: 'payment',
+                priority: 'normal',
+                metadata: {
+                    paymentId: paymentInfo.payment_id,
+                    transactionId: paymentInfo.transaction_id,
+                    paymentType: paymentInfo.payment_type, // 'subscription', 'boost', 'gift'
+                    amount: paymentInfo.amount,
+                    currency: paymentInfo.currency,
+                    paymentStatus: paymentInfo.payment_status,
+                    paymentMethod: paymentInfo.payment_method,
+                    nextBillingDate: paymentInfo.next_billing_date,
+                    paymentTimestamp: new Date().toISOString(),
+                },
+                channels: {
+                    push: true,
+                    email: true,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Payment notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send payment notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a security notification
+     */
+    async sendSecurityNotification(userId, securityInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: securityInfo.title,
+                message: securityInfo.message,
+                type: 'security',
+                priority: 'high',
+                metadata: {
+                    securityEventId: securityInfo.security_event_id,
+                    securityEventType: securityInfo.security_event_type, // 'login', 'password_change', 'suspicious_activity'
+                    deviceInfo: securityInfo.device_info,
+                    ipAddress: securityInfo.ip_address,
+                    location: securityInfo.location,
+                    actionTaken: securityInfo.action_taken,
+                    actionRequired: securityInfo.action_required,
+                    securityTimestamp: new Date().toISOString(),
+                },
+                channels: {
+                    push: true,
+                    email: true,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Security notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send security notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a maintenance notification
+     */
+    async sendMaintenanceNotification(userId, maintenanceInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: maintenanceInfo.title,
+                message: maintenanceInfo.message,
+                type: 'maintenance',
+                priority: 'normal',
+                metadata: {
+                    maintenanceId: maintenanceInfo.maintenance_id,
+                    maintenanceType: maintenanceInfo.maintenance_type, // 'scheduled', 'emergency', 'update'
+                    affectedServices: maintenanceInfo.affected_services,
+                    startTime: maintenanceInfo.start_time,
+                    endTime: maintenanceInfo.end_time,
+                    estimatedDuration: maintenanceInfo.estimated_duration,
+                    impact: maintenanceInfo.impact, // 'low', 'medium', 'high'
+                    maintenanceTimestamp: new Date().toISOString(),
+                },
+                channels: {
+                    push: true,
+                    email: true,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Maintenance notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send maintenance notification:', error);
+            throw error;
+        }
+    }
     async sendDateRequestNotification(recipientUserId, dateRequestData) {
         try {
             const notification = {
@@ -199,16 +563,14 @@ class DatingNotificationService {
                     requesterName: dateRequestData.requester_name,
                     requesterProfilePicture: dateRequestData.requester_profile_picture,
                     
-                    // Requester details
+                    // Requester basic info
                     requesterAge: dateRequestData.requester_age,
                     requesterOccupation: dateRequestData.requester_occupation,
                     requesterLocation: dateRequestData.requester_location,
                     requesterVerified: dateRequestData.requester_verified,
-                    requesterRating: dateRequestData.requester_rating,
                     
                     // Date proposal details
                     proposedDateTime: dateRequestData.date_time,
-                    dateTimeFlexible: dateRequestData.time_flexible,
                     activity: dateRequestData.activity,
                     activityCategory: dateRequestData.activity_category,
                     estimatedDuration: dateRequestData.estimated_duration,
@@ -218,86 +580,41 @@ class DatingNotificationService {
                     venueDetails: {
                         name: dateRequestData.venue_name,
                         address: dateRequestData.venue_address,
-                        coordinates: dateRequestData.venue_coordinates,
                         rating: dateRequestData.venue_rating,
                         priceRange: dateRequestData.venue_price_range,
-                        cuisine: dateRequestData.venue_cuisine,
-                        ambiance: dateRequestData.venue_ambiance,
-                        photos: dateRequestData.venue_photos
+                        cuisine: dateRequestData.venue_cuisine
                     },
                     
                     // Cost and logistics
                     costEstimate: dateRequestData.cost_estimate,
                     whoPays: dateRequestData.who_pays, // 'requester', 'split', 'recipient'
-                    transportationSuggested: dateRequestData.transportation,
-                    parkingAvailable: dateRequestData.parking_available,
-                    accessibility: dateRequestData.accessibility_features,
                     
                     // Distance and convenience
                     distanceFromRecipient: dateRequestData.distance_from_recipient_km,
                     travelTimeMinutes: dateRequestData.travel_time_minutes,
-                    nearPublicTransport: dateRequestData.near_public_transport,
                     
-                    // Safety and verification
+                    // Safety basics
                     safetyScore: dateRequestData.safety_score,
                     publicVenue: dateRequestData.is_public_venue,
-                    crowdedArea: dateRequestData.is_crowded_area,
-                    emergencyContacts: dateRequestData.emergency_contacts_shared,
-                    backgroundCheckStatus: dateRequestData.background_check_status,
                     
                     // Match context
                     matchInfo: {
                         matchId: dateRequestData.match_id,
-                        matchDate: dateRequestData.match_date,
                         daysSinceMatch: dateRequestData.days_since_match,
                         conversationQuality: dateRequestData.conversation_quality_score,
                         messageCount: dateRequestData.message_count,
-                        mutualInterests: dateRequestData.mutual_interests,
                         compatibilityScore: dateRequestData.compatibility_score
                     },
                     
-                    // Timing insights
+                    // Timing
                     requestCreatedAt: new Date().toISOString(),
                     expiresAt: dateRequestData.expires_at,
-                    optimalResponseTime: dateRequestData.optimal_response_time,
-                    requesterTimezone: dateRequestData.requester_timezone,
-                    recipientTimezone: dateRequestData.recipient_timezone,
                     
-                    // User preferences alignment
+                    // Preferences alignment
                     prefAlignment: {
                         activityMatch: dateRequestData.activity_preference_match,
                         priceRangeMatch: dateRequestData.price_preference_match,
-                        timeMatch: dateRequestData.time_preference_match,
-                        locationMatch: dateRequestData.location_preference_match,
-                        durationMatch: dateRequestData.duration_preference_match
-                    },
-                    
-                    // Previous interaction history
-                    interactionHistory: {
-                        previousDates: dateRequestData.previous_dates_count,
-                        previousCancellations: dateRequestData.previous_cancellations,
-                        averageRating: dateRequestData.average_date_rating,
-                        lastInteraction: dateRequestData.last_interaction_date,
-                        responsePatterns: dateRequestData.response_patterns
-                    },
-                    
-                    // AI insights
-                    aiRecommendations: {
-                        shouldAccept: dateRequestData.ai_should_accept_score,
-                        riskFactors: dateRequestData.ai_risk_factors,
-                        compatibilityPrediction: dateRequestData.ai_compatibility_prediction,
-                        conversationStarters: dateRequestData.ai_conversation_starters
-                    },
-                    
-                    // Action URLs
-                    actionUrls: {
-                        accept: `/date-requests/${dateRequestData.request_id}/accept`,
-                        decline: `/date-requests/${dateRequestData.request_id}/decline`,
-                        counterPropose: `/date-requests/${dateRequestData.request_id}/counter`,
-                        viewVenue: `/venues/${dateRequestData.venue_id}`,
-                        viewProfile: `/profiles/${dateRequestData.requester_id}`,
-                        safetyTips: '/safety/date-tips',
-                        reportConcern: `/date-requests/${dateRequestData.request_id}/report`
+                        locationMatch: dateRequestData.location_preference_match
                     }
                 },
                 channels: {
@@ -318,9 +635,238 @@ class DatingNotificationService {
             throw error;
         }
     }
+
+    /**
+     * Send a date accepted notification
+     */
+    async sendDateAcceptedNotification(userId, dateAcceptedInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: "Date Accepted! 🎉",
+                message: `${dateAcceptedInfo.accepter_name} accepted your date request!`,
+                type: 'date_accepted',
+                priority: 'high',
+                metadata: {
+                    dateId: dateAcceptedInfo.date_id,
+                    dateRequestId: dateAcceptedInfo.date_request_id,
+                    accepterId: dateAcceptedInfo.accepter_id,
+                    accepterName: dateAcceptedInfo.accepter_name,
+                    accepterProfilePicture: dateAcceptedInfo.accepter_profile_picture,
+                    
+                    // Date details
+                    dateTime: dateAcceptedInfo.date_time,
+                    activity: dateAcceptedInfo.activity,
+                    venue: dateAcceptedInfo.venue_name,
+                    venueAddress: dateAcceptedInfo.venue_address,
+                    
+                    // Response context
+                    acceptanceMessage: dateAcceptedInfo.acceptance_message,
+                    acceptedAt: new Date().toISOString(),
+                    
+                    // Next steps
+                    nextSteps: dateAcceptedInfo.next_steps,
+                    reminderSet: dateAcceptedInfo.reminder_set,
+                },
+                channels: {
+                    push: true,
+                    email: true,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Date accepted notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send date accepted notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a date declined notification
+     */
+    async sendDateDeclinedNotification(userId, dateDeclinedInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: "Date Declined",
+                message: `${dateDeclinedInfo.decliner_name} declined your date request.`,
+                type: 'date_declined',
+                priority: 'normal',
+                metadata: {
+                    dateRequestId: dateDeclinedInfo.date_request_id,
+                    declinerId: dateDeclinedInfo.decliner_id,
+                    declinerName: dateDeclinedInfo.decliner_name,
+                    declinerProfilePicture: dateDeclinedInfo.decliner_profile_picture,
+                    
+                    // Decline context
+                    declineReason: dateDeclinedInfo.decline_reason,
+                    declineMessage: dateDeclinedInfo.decline_message,
+                    declinedAt: new Date().toISOString(),
+                    
+                    // Alternative suggestions
+                    suggestAlternative: dateDeclinedInfo.suggest_alternative,
+                    alternativeDates: dateDeclinedInfo.alternative_dates,
+                    
+                    // Encouragement
+                    encouragementMessage: dateDeclinedInfo.encouragement_message,
+                },
+                channels: {
+                    push: true,
+                    email: false,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Date declined notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send date declined notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a date canceled notification
+     */
+    async sendDateCanceledNotification(userId, dateCanceledInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: "Date Canceled ⚠️",
+                message: `${dateCanceledInfo.canceler_name} had to cancel your upcoming date.`,
+                type: 'date_canceled',
+                priority: 'high',
+                metadata: {
+                    dateId: dateCanceledInfo.date_id,
+                    cancelerId: dateCanceledInfo.canceler_id,
+                    cancelerName: dateCanceledInfo.canceler_name,
+                    cancelerProfilePicture: dateCanceledInfo.canceler_profile_picture,
+                    
+                    // Original date details
+                    originalDateTime: dateCanceledInfo.original_date_time,
+                    originalActivity: dateCanceledInfo.original_activity,
+                    originalVenue: dateCanceledInfo.original_venue,
+                    
+                    // Cancellation context
+                    cancelReason: dateCanceledInfo.cancel_reason,
+                    cancelMessage: dateCanceledInfo.cancel_message,
+                    canceledAt: new Date().toISOString(),
+                    
+                    // Rescheduling options
+                    offerReschedule: dateCanceledInfo.offer_reschedule,
+                    suggestedNewDates: dateCanceledInfo.suggested_new_dates,
+                    
+                    // Compensation
+                    refundOffered: dateCanceledInfo.refund_offered,
+                    creditOffered: dateCanceledInfo.credit_offered,
+                },
+                channels: {
+                    push: true,
+                    email: true,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Date canceled notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send date canceled notification:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send a date reminder notification
+     */
+    async sendDateReminderNotification(userId, dateReminderInfo) {
+        try {
+            const notification = {
+                userId: userId,
+                title: "Date Reminder ⏰",
+                message: `Don't forget your date with ${dateReminderInfo.partner_name} ${dateReminderInfo.time_until}!`,
+                type: 'date_reminder',
+                priority: 'normal',
+                metadata: {
+                    dateId: dateReminderInfo.date_id,
+                    partnerId: dateReminderInfo.partner_id,
+                    partnerName: dateReminderInfo.partner_name,
+                    partnerProfilePicture: dateReminderInfo.partner_profile_picture,
+                    
+                    // Date details
+                    dateTime: dateReminderInfo.date_time,
+                    activity: dateReminderInfo.activity,
+                    venueName: dateReminderInfo.venue_name,
+                    venueAddress: dateReminderInfo.venue_address,
+                    
+                    // Timing
+                    timeUntilDate: dateReminderInfo.time_until,
+                    reminderType: dateReminderInfo.reminder_type, // '24h', '2h', '30min'
+                    
+                    // Helpful info
+                    weatherInfo: dateReminderInfo.weather_info,
+                    transportationSuggestions: dateReminderInfo.transportation_suggestions,
+                    dressCode: dateReminderInfo.dress_code,
+                    specialInstructions: dateReminderInfo.special_instructions,
+                    
+                    reminderTimestamp: new Date().toISOString(),
+                },
+                channels: {
+                    push: true,
+                    email: false,
+                    websocket: true,
+                    inApp: true
+                }
+            };
+
+            const result = await this.notificationClient.createNotification(notification);
+            console.log('✅ Date reminder notification sent:', result.notification.id);
+            return result;
+        } catch (error) {
+            console.error('❌ Failed to send date reminder notification:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = DatingNotificationService;
+
+// Helper functions for generating random test data
+const randomNames = ['Sarah Johnson', 'Alex Thompson', 'Jordan Martinez', 'Taylor Smith', 'Morgan Davis', 'Casey Wilson', 'Riley Brown', 'Jamie Garcia', 'Avery Miller', 'Quinn Anderson'];
+const randomCities = ['New York', 'San Francisco', 'Los Angeles', 'Chicago', 'Boston', 'Seattle', 'Austin', 'Denver', 'Portland', 'Miami'];
+const randomStates = ['NY', 'CA', 'CA', 'IL', 'MA', 'WA', 'TX', 'CO', 'OR', 'FL'];
+const randomOccupations = ['Software Engineer', 'Product Manager', 'UX Designer', 'Marketing Manager', 'Data Scientist', 'Teacher', 'Nurse', 'Lawyer', 'Architect', 'Photographer'];
+const randomInterests = ['hiking', 'photography', 'cooking', 'travel', 'music', 'art', 'fitness', 'reading', 'dancing', 'gaming'];
+const randomActivities = ['Dinner at Italian Restaurant', 'Coffee at Local Café', 'Walk in the Park', 'Art Museum Visit', 'Wine Tasting', 'Hiking Trail', 'Concert', 'Cooking Class', 'Beach Day', 'Farmers Market'];
+const randomVenues = ['Bella Vista Ristorante', 'The Coffee House', 'Central Park', 'Modern Art Museum', 'Napa Valley Winery', 'Mountain Trail', 'Concert Hall', 'Culinary Institute', 'Santa Monica Beach', 'Downtown Market'];
+
+function getRandomElement(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+function getRandomElements(array, count) {
+    const shuffled = [...array].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateRandomUserId() {
+    return 'user_' + Math.random().toString(36).substr(2, 16);
+}
+
+function generateRandomId(prefix) {
+    return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+}
 
 // Test runner and example usage
 async function runTests() {
@@ -334,14 +880,49 @@ async function runTests() {
         await testLikeNotification(datingNotifications);
         console.log('');
         
-        // Test 2: Match Notification
-        console.log('📝 Test 2: Sending Match Notification');
+        // Test 2: Super Like Notification
+        console.log('📝 Test 2: Sending Super Like Notification');
+        await testSuperLikeNotification(datingNotifications);
+        console.log('');
+        
+        // Test 3: Match Notification
+        console.log('📝 Test 3: Sending Match Notification');
         await testMatchNotification(datingNotifications);
         console.log('');
         
-        // Test 3: Date Request Notification
-        console.log('📝 Test 3: Sending Date Request Notification');
+        // Test 4: Rizz Notification
+        console.log('📝 Test 4: Sending Rizz Notification');
+        await testRizzNotification(datingNotifications);
+        console.log('');
+        
+        // Test 5: Connection Notification
+        console.log('📝 Test 5: Sending Connection Notification');
+        await testConnectionNotification(datingNotifications);
+        console.log('');
+        
+        // Test 6: Date Request Notification
+        console.log('📝 Test 6: Sending Date Request Notification');
         await testDateRequestNotification(datingNotifications);
+        console.log('');
+        
+        // Test 7: Date Accepted Notification
+        console.log('📝 Test 7: Sending Date Accepted Notification');
+        await testDateAcceptedNotification(datingNotifications);
+        console.log('');
+        
+        // Test 8: Date Reminder Notification
+        console.log('📝 Test 8: Sending Date Reminder Notification');
+        await testDateReminderNotification(datingNotifications);
+        console.log('');
+        
+        // Test 9: Security Notification
+        console.log('📝 Test 9: Sending Security Notification');
+        await testSecurityNotification(datingNotifications);
+        console.log('');
+        
+        // Test 10: Payment Notification
+        console.log('📝 Test 10: Sending Payment Notification');
+        await testPaymentNotification(datingNotifications);
         console.log('');
         
         console.log('✅ All tests completed successfully!');
@@ -354,39 +935,33 @@ async function runTests() {
 
 async function testLikeNotification(service) {
     const likedUserId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    const randomLiker = getRandomElement(randomNames);
+    const randomCity = getRandomElement(randomCities);
+    const randomState = getRandomElement(randomStates);
     const likerInfo = {
-        user_id: 'user_0a18a61423efa8f3a6dba414437328f7',
-        name: 'Sarah Johnson',
-        profile_picture: 'https://example.com/sarah.jpg',
-        age: 28,
-        city: 'New York',
-        state: 'NY',
-        occupation: 'Software Engineer',
-        education: 'Masters in Computer Science',
-        activity_level: 'high',
-        response_rate: 0.85,
-        verification_status: 'verified'
+        user_id: generateRandomUserId(),
+        name: randomLiker,
+        profile_picture: `https://example.com/${randomLiker.toLowerCase().replace(' ', '')}.jpg`,
+        age: getRandomNumber(22, 35),
+        city: randomCity,
+        state: randomState,
+        occupation: getRandomElement(randomOccupations)
     };
     
     const likeContext = {
-        like_id: 'like_' + Date.now(),
-        compatibility_score: 85,
-        mutual_friends_count: 3,
-        mutual_interests: ['hiking', 'photography', 'cooking'],
-        mutual_follows: 2,
-        like_type: 'super_like',
-        source: 'discovery',
-        is_reciprocal: false,
+        like_id: generateRandomId('like'),
+        compatibility_score: getRandomNumber(70, 95),
+        mutual_friends_count: getRandomNumber(0, 8),
+        mutual_interests: getRandomElements(randomInterests, getRandomNumber(2, 5)),
+        like_type: getRandomElement(['regular', 'super_like']),
+        source: getRandomElement(['discovery', 'search', 'recommendations']),
+        is_reciprocal: Math.random() > 0.7,
         suggested_ice_breakers: [
-            "I noticed you love hiking too! What's your favorite trail?",
-            "Your photography skills are amazing! What camera do you use?"
+            `I noticed you love ${getRandomElement(randomInterests)} too! What's your favorite spot?`,
+            `Your ${getRandomElement(randomInterests)} photos are amazing! Tell me more about that!`
         ],
-        common_topics: ['travel', 'food', 'technology'],
-        profile_strength_match: 92,
-        device_info: { platform: 'iOS', version: '15.0' },
-        session_id: 'session_' + Date.now(),
-        experiment_group: 'control',
-        recipient_email_notifications: true
+        common_topics: getRandomElements(randomInterests, getRandomNumber(2, 4)),
+        recipient_email_notifications: Math.random() > 0.3
     };
     
     const result = await service.sendLikeNotification(likedUserId, likerInfo, likeContext);
@@ -396,68 +971,49 @@ async function testLikeNotification(service) {
 
 async function testMatchNotification(service) {
     const userId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    const randomPartner = getRandomElement(randomNames);
+    const randomCity = getRandomElement(randomCities);
+    const randomState = getRandomElement(randomStates);
     const matchInfo = {
-        match_id: 'match_' + Date.now(),
-        partner_id: 'user_0a18a61423efa8f3a6dba414437328f7',
-        partner_name: 'Alex Thompson',
-        partner_profile_picture: 'https://example.com/alex.jpg',
-        partner_age: 30,
-        partner_city: 'San Francisco',
-        partner_state: 'CA',
-        partner_occupation: 'Product Manager',
-        partner_education: 'MBA',
-        partner_bio: 'Love exploring new restaurants and weekend adventures. Always up for a good conversation about tech and travel.',
+        match_id: generateRandomId('match'),
+        partner_id: generateRandomUserId(),
+        partner_name: randomPartner,
+        partner_profile_picture: `https://example.com/${randomPartner.toLowerCase().replace(' ', '')}.jpg`,
+        partner_age: getRandomNumber(23, 36),
+        partner_city: randomCity,
+        partner_state: randomState,
+        partner_occupation: getRandomElement(randomOccupations),
+        partner_bio: `Love exploring new places and trying different cuisines. Always up for good conversations about ${getRandomElements(randomInterests, 2).join(' and ')}.`,
         
         // Match quality
-        compatibility_score: 92,
-        match_score: 88,
-        personality_match_percentage: 85,
-        interest_alignment_score: 90,
+        compatibility_score: getRandomNumber(80, 98),
+        match_score: getRandomNumber(75, 95),
         
         // Social connections
-        mutual_friends_count: 5,
-        mutual_interests: ['travel', 'food', 'hiking', 'technology'],
-        mutual_follows: 3,
-        common_activities: ['rock climbing', 'wine tasting'],
+        mutual_friends_count: getRandomNumber(1, 8),
+        mutual_interests: getRandomElements(randomInterests, getRandomNumber(3, 6)),
+        common_activities: getRandomElements(['rock climbing', 'wine tasting', 'board games', 'live music'], getRandomNumber(1, 3)),
         
         // Match context
-        match_type: 'super_match',
-        source: 'discovery',
-        time_to_match_hours: 2.5,
+        match_type: getRandomElement(['regular', 'super_match']),
+        source: getRandomElement(['discovery', 'search', 'recommendations']),
         
         // Conversation aids
         suggested_ice_breakers: [
-            "I see we both love hiking! Have you been to Yosemite?",
-            "Your travel photos are amazing! What's your favorite destination?"
+            `I see we both love ${getRandomElement(randomInterests)}! What got you into it?`,
+            `Your photos from ${randomCity} are amazing! I've always wanted to visit there.`
         ],
-        conversation_starters: [
-            "Ask about their recent trip to Japan",
-            "Mention the mutual friend Emma"
-        ],
-        common_topics: ['startup culture', 'sustainable travel', 'food photography'],
-        shared_experiences: ['both lived in NYC', 'both attended tech conferences'],
-        
-        // Milestones
-        is_first_match_for_user: false,
-        user_total_matches: 12,
-        partner_total_matches: 8,
+        common_topics: getRandomElements(randomInterests, getRandomNumber(2, 4)),
         
         // Premium
-        is_premium_match: true,
-        boost_used: false,
-        super_like_involved: true,
+        is_premium_match: Math.random() > 0.6,
+        super_like_involved: Math.random() > 0.7,
         
         // Geography
-        distance_km: 15,
-        same_city: true,
-        same_neighborhood: false,
+        distance_km: getRandomNumber(5, 50),
+        same_city: Math.random() > 0.4,
         
-        // Timing
-        optimal_message_time: '2025-08-21T19:00:00Z',
-        partner_active_hours: ['18:00-22:00'],
-        response_rate_prediction: 0.78,
-        
-        user_email_notifications: true
+        user_email_notifications: Math.random() > 0.2
     };
     
     const result = await service.sendMatchNotification(userId, matchInfo);
@@ -467,98 +1023,273 @@ async function testMatchNotification(service) {
 
 async function testDateRequestNotification(service) {
     const recipientUserId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    const randomRequester = getRandomElement(randomNames);
+    const randomActivity = getRandomElement(randomActivities);
+    const randomVenue = getRandomElement(randomVenues);
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + getRandomNumber(2, 7));
+    futureDate.setHours(getRandomNumber(17, 21), getRandomNumber(0, 59));
+    
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 2);
+    expirationDate.setHours(23, 59, 59);
+    
     const dateRequestData = {
-        request_id: 'date_req_' + Date.now(),
-        requester_id: 'user_0a18a61423efa8f3a6dba414437328f7',
-        requester_name: 'Jordan Martinez',
-        requester_profile_picture: 'https://example.com/jordan.jpg',
-        requester_age: 29,
-        requester_occupation: 'UX Designer',
-        requester_location: 'Downtown SF',
-        requester_verified: true,
-        requester_rating: 4.8,
+        request_id: generateRandomId('date_req'),
+        requester_id: generateRandomUserId(),
+        requester_name: randomRequester,
+        requester_profile_picture: `https://example.com/${randomRequester.toLowerCase().replace(' ', '')}.jpg`,
+        requester_age: getRandomNumber(24, 34),
+        requester_occupation: getRandomElement(randomOccupations),
+        requester_location: `${getRandomElement(randomCities)} Downtown`,
+        requester_verified: Math.random() > 0.3,
         
         // Date details
-        date_time: '2025-08-25T19:30:00Z',
-        time_flexible: true,
-        activity: 'Dinner at Italian Restaurant',
-        activity_category: 'dining',
-        estimated_duration: '2 hours',
-        personal_message: 'I found this amazing Italian place with great reviews. Would love to take you there!',
+        date_time: futureDate.toISOString(),
+        activity: randomActivity,
+        activity_category: getRandomElement(['dining', 'entertainment', 'outdoor', 'cultural']),
+        estimated_duration: getRandomElement(['1 hour', '2 hours', '3 hours', 'Half day']),
+        personal_message: `I found this amazing place with great reviews. Would love to ${randomActivity.toLowerCase()} with you!`,
         
         // Venue details
-        venue_name: 'Bella Vista Ristorante',
-        venue_address: '123 Market Street, San Francisco, CA',
-        venue_coordinates: { lat: 37.7749, lng: -122.4194 },
-        venue_rating: 4.5,
-        venue_price_range: '$$',
-        venue_cuisine: 'Italian',
-        venue_ambiance: 'romantic, cozy',
-        venue_photos: ['https://example.com/venue1.jpg'],
-        venue_id: 'venue_123',
+        venue_name: randomVenue,
+        venue_address: `${getRandomNumber(100, 999)} ${getRandomElement(['Main', 'First', 'Second', 'Market', 'Oak'])} Street, ${getRandomElement(randomCities)}, ${getRandomElement(randomStates)}`,
+        venue_rating: (Math.random() * 2 + 3).toFixed(1), // 3.0 to 5.0
+        venue_price_range: getRandomElement(['$', '$$', '$$$']),
+        venue_cuisine: getRandomElement(['Italian', 'Asian', 'American', 'Mediterranean', 'Mexican']),
         
         // Logistics
-        cost_estimate: '$60-80 per person',
-        who_pays: 'requester',
-        transportation: 'ride share recommended',
-        parking_available: true,
-        accessibility_features: ['wheelchair accessible'],
+        cost_estimate: getRandomElement(['$30-50 per person', '$50-80 per person', '$80-120 per person']),
+        who_pays: getRandomElement(['requester', 'split']),
         
         // Distance
-        distance_from_recipient_km: 8,
-        travel_time_minutes: 25,
-        near_public_transport: true,
+        distance_from_recipient_km: getRandomNumber(3, 25),
+        travel_time_minutes: getRandomNumber(15, 45),
         
         // Safety
-        safety_score: 9.2,
-        is_public_venue: true,
-        is_crowded_area: true,
-        emergency_contacts_shared: false,
-        background_check_status: 'verified',
+        safety_score: (Math.random() * 2 + 8).toFixed(1), // 8.0 to 10.0
+        is_public_venue: Math.random() > 0.2,
         
         // Match context
-        match_id: 'match_previous_123',
-        match_date: '2025-08-15T00:00:00Z',
-        days_since_match: 6,
-        conversation_quality_score: 8.5,
-        message_count: 24,
-        mutual_interests: ['food', 'art', 'travel'],
-        compatibility_score: 87,
+        match_id: generateRandomId('match'),
+        days_since_match: getRandomNumber(1, 14),
+        conversation_quality_score: (Math.random() * 3 + 7).toFixed(1), // 7.0 to 10.0
+        message_count: getRandomNumber(10, 50),
+        compatibility_score: getRandomNumber(75, 95),
         
         // Timing
-        expires_at: '2025-08-23T23:59:59Z',
-        optimal_response_time: '24 hours',
-        requester_timezone: 'America/Los_Angeles',
-        recipient_timezone: 'America/Los_Angeles',
+        expires_at: expirationDate.toISOString(),
         
         // Preferences
-        activity_preference_match: 85,
-        price_preference_match: 90,
-        time_preference_match: 80,
-        location_preference_match: 95,
-        duration_preference_match: 88,
+        activity_preference_match: getRandomNumber(70, 95),
+        price_preference_match: getRandomNumber(80, 100),
+        location_preference_match: getRandomNumber(75, 98),
         
-        // History
-        previous_dates_count: 0,
-        previous_cancellations: 0,
-        average_date_rating: null,
-        last_interaction_date: '2025-08-21T10:30:00Z',
-        response_patterns: 'typically responds within 2 hours',
-        
-        // AI insights
-        ai_should_accept_score: 82,
-        ai_risk_factors: ['none detected'],
-        ai_compatibility_prediction: 'high',
-        ai_conversation_starters: [
-            'Ask about their favorite Italian dish',
-            'Mention the restaurant\'s wine selection'
-        ],
-        
-        recipient_email_notifications: true
+        recipient_email_notifications: Math.random() > 0.25
     };
     
     const result = await service.sendDateRequestNotification(recipientUserId, dateRequestData);
     console.log(`   ✅ Date request notification sent with ID: ${result.notification.id}`);
+    return result;
+}
+
+async function testSuperLikeNotification(service) {
+    const likedUserId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    const randomSuperLiker = getRandomElement(randomNames);
+    const randomCity = getRandomElement(randomCities);
+    const randomState = getRandomElement(randomStates);
+    const superLikerInfo = {
+        user_id: generateRandomUserId(),
+        name: randomSuperLiker,
+        profile_picture: `https://example.com/${randomSuperLiker.toLowerCase().replace(' ', '')}.jpg`,
+        age: getRandomNumber(22, 35),
+        city: randomCity,
+        state: randomState,
+        occupation: getRandomElement(randomOccupations)
+    };
+    
+    const superLikeContext = {
+        super_like_id: generateRandomId('superlike'),
+        compatibility_score: getRandomNumber(80, 98),
+        mutual_friends_count: getRandomNumber(1, 10),
+        mutual_interests: getRandomElements(randomInterests, getRandomNumber(3, 6)),
+        source: getRandomElement(['discovery', 'search', 'recommendations']),
+        is_premium_user: Math.random() > 0.5,
+        suggested_ice_breakers: [
+            `I noticed you love ${getRandomElement(randomInterests)} too! What's your favorite spot?`,
+            `Your ${getRandomElement(randomInterests)} photos are amazing! Tell me more about that!`
+        ],
+        common_topics: getRandomElements(randomInterests, getRandomNumber(2, 4))
+    };
+    
+    const result = await service.sendSuperLikeNotification(likedUserId, superLikerInfo, superLikeContext);
+    console.log(`   ✅ Super like notification sent with ID: ${result.notification.id}`);
+    return result;
+}
+
+async function testRizzNotification(service) {
+    const recipientUserId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    const randomSender = getRandomElement(randomNames);
+    const randomCity = getRandomElement(randomCities);
+    const randomState = getRandomElement(randomStates);
+    const rizzMessages = [
+        "Are you a magician? Because whenever I look at you, everyone else disappears!",
+        "Do you have a map? I keep getting lost in your eyes.",
+        "Is your name Google? Because you have everything I've been searching for.",
+        "Are you made of copper and tellurium? Because you're Cu-Te!"
+    ];
+    
+    const rizzSenderInfo = {
+        user_id: generateRandomUserId(),
+        name: randomSender,
+        profile_picture: `https://example.com/${randomSender.toLowerCase().replace(' ', '')}.jpg`,
+        age: getRandomNumber(22, 35),
+        city: randomCity,
+        state: randomState,
+        occupation: getRandomElement(randomOccupations)
+    };
+    
+    const rizzContext = {
+        rizz_id: generateRandomId('rizz'),
+        rizz_message: getRandomElement(rizzMessages),
+        rizz_type: getRandomElement(['pickup_line', 'compliment', 'funny', 'smooth']),
+        rizz_rating: getRandomNumber(7, 10),
+        compatibility_score: getRandomNumber(75, 95),
+        mutual_interests: getRandomElements(randomInterests, getRandomNumber(2, 4))
+    };
+    
+    const result = await service.sendRizzNotification(recipientUserId, rizzSenderInfo, rizzContext);
+    console.log(`   ✅ Rizz notification sent with ID: ${result.notification.id}`);
+    return result;
+}
+
+async function testConnectionNotification(service) {
+    const recipientUserId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    const randomSender = getRandomElement(randomNames);
+    const randomCity = getRandomElement(randomCities);
+    const randomState = getRandomElement(randomStates);
+    
+    const connectionInfo = {
+        connection_id: generateRandomId('conn'),
+        sender_id: generateRandomUserId(),
+        sender_name: randomSender,
+        sender_profile_picture: `https://example.com/${randomSender.toLowerCase().replace(' ', '')}.jpg`,
+        sender_age: getRandomNumber(22, 35),
+        sender_location: `${randomCity}, ${randomState}`,
+        sender_occupation: getRandomElement(randomOccupations),
+        sender_verified: Math.random() > 0.3,
+        connection_type: getRandomElement(['friend', 'professional', 'dating']),
+        connection_reason: getRandomElement(['mutual_interests', 'location', 'work', 'mutual_friends']),
+        mutual_connections: getRandomNumber(1, 5),
+        mutual_interests: getRandomElements(randomInterests, getRandomNumber(2, 4))
+    };
+    
+    const result = await service.sendConnectionNotification(recipientUserId, connectionInfo);
+    console.log(`   ✅ Connection notification sent with ID: ${result.notification.id}`);
+    return result;
+}
+
+async function testDateAcceptedNotification(service) {
+    const userId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    const randomAccepter = getRandomElement(randomNames);
+    const randomActivity = getRandomElement(randomActivities);
+    const randomVenue = getRandomElement(randomVenues);
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + getRandomNumber(2, 7));
+    futureDate.setHours(getRandomNumber(17, 21), getRandomNumber(0, 59));
+    
+    const dateAcceptedInfo = {
+        date_id: generateRandomId('date'),
+        date_request_id: generateRandomId('date_req'),
+        accepter_id: generateRandomUserId(),
+        accepter_name: randomAccepter,
+        accepter_profile_picture: `https://example.com/${randomAccepter.toLowerCase().replace(' ', '')}.jpg`,
+        date_time: futureDate.toISOString(),
+        activity: randomActivity,
+        venue_name: randomVenue,
+        venue_address: `${getRandomNumber(100, 999)} ${getRandomElement(['Main', 'First', 'Second', 'Market', 'Oak'])} Street`,
+        acceptance_message: "Looking forward to it! This sounds like so much fun!",
+        next_steps: ["Exchange contact info", "Confirm meeting time", "Check weather"],
+        reminder_set: true
+    };
+    
+    const result = await service.sendDateAcceptedNotification(userId, dateAcceptedInfo);
+    console.log(`   ✅ Date accepted notification sent with ID: ${result.notification.id}`);
+    return result;
+}
+
+async function testDateReminderNotification(service) {
+    const userId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    const randomPartner = getRandomElement(randomNames);
+    const randomActivity = getRandomElement(randomActivities);
+    const randomVenue = getRandomElement(randomVenues);
+    const dateTime = new Date();
+    dateTime.setHours(dateTime.getHours() + 2); // 2 hours from now
+    
+    const dateReminderInfo = {
+        date_id: generateRandomId('date'),
+        partner_id: generateRandomUserId(),
+        partner_name: randomPartner,
+        partner_profile_picture: `https://example.com/${randomPartner.toLowerCase().replace(' ', '')}.jpg`,
+        date_time: dateTime.toISOString(),
+        activity: randomActivity,
+        venue_name: randomVenue,
+        venue_address: `${getRandomNumber(100, 999)} ${getRandomElement(['Main', 'First', 'Second', 'Market', 'Oak'])} Street`,
+        time_until: "in 2 hours",
+        reminder_type: "2h",
+        weather_info: "Sunny, 72°F",
+        transportation_suggestions: ["Uber (15 min)", "Walk (25 min)", "Bus (20 min)"],
+        dress_code: "Smart casual",
+        special_instructions: "Ask for the rooftop seating"
+    };
+    
+    const result = await service.sendDateReminderNotification(userId, dateReminderInfo);
+    console.log(`   ✅ Date reminder notification sent with ID: ${result.notification.id}`);
+    return result;
+}
+
+async function testSecurityNotification(service) {
+    const userId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    
+    const securityInfo = {
+        title: "New Login Detected 🔐",
+        message: "Someone logged into your account from a new device.",
+        security_event_id: generateRandomId('sec'),
+        security_event_type: getRandomElement(['login', 'password_change', 'suspicious_activity']),
+        device_info: {
+            device_type: "iPhone 15 Pro",
+            browser: "Safari 17.1",
+            os: "iOS 17.1"
+        },
+        ip_address: "192.168.1.100",
+        location: `${getRandomElement(randomCities)}, ${getRandomElement(randomStates)}`,
+        action_taken: "Login allowed",
+        action_required: false
+    };
+    
+    const result = await service.sendSecurityNotification(userId, securityInfo);
+    console.log(`   ✅ Security notification sent with ID: ${result.notification.id}`);
+    return result;
+}
+
+async function testPaymentNotification(service) {
+    const userId = '8e580844-4053-4f60-9549-5722c0c41e13';
+    
+    const paymentInfo = {
+        title: "Payment Successful 💳",
+        message: "Your Premium subscription has been renewed.",
+        payment_id: generateRandomId('pay'),
+        transaction_id: generateRandomId('txn'),
+        payment_type: getRandomElement(['subscription', 'boost', 'gift']),
+        amount: getRandomElement(['9.99', '19.99', '29.99']),
+        currency: "USD",
+        payment_status: "completed",
+        payment_method: "•••• 4242",
+        next_billing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    };
+    
+    const result = await service.sendPaymentNotification(userId, paymentInfo);
+    console.log(`   ✅ Payment notification sent with ID: ${result.notification.id}`);
     return result;
 }
 
@@ -571,12 +1302,33 @@ async function quickTest(type = 'all') {
             case 'like':
                 await testLikeNotification(service);
                 break;
+            case 'superlike':
+                await testSuperLikeNotification(service);
+                break;
             case 'match':
                 await testMatchNotification(service);
+                break;
+            case 'rizz':
+                await testRizzNotification(service);
+                break;
+            case 'connection':
+                await testConnectionNotification(service);
                 break;
             case 'date':
             case 'date_request':
                 await testDateRequestNotification(service);
+                break;
+            case 'date_accepted':
+                await testDateAcceptedNotification(service);
+                break;
+            case 'date_reminder':
+                await testDateReminderNotification(service);
+                break;
+            case 'security':
+                await testSecurityNotification(service);
+                break;
+            case 'payment':
+                await testPaymentNotification(service);
                 break;
             case 'all':
             default:
@@ -592,8 +1344,15 @@ async function quickTest(type = 'all') {
 module.exports.runTests = runTests;
 module.exports.quickTest = quickTest;
 module.exports.testLikeNotification = testLikeNotification;
+module.exports.testSuperLikeNotification = testSuperLikeNotification;
 module.exports.testMatchNotification = testMatchNotification;
+module.exports.testRizzNotification = testRizzNotification;
+module.exports.testConnectionNotification = testConnectionNotification;
 module.exports.testDateRequestNotification = testDateRequestNotification;
+module.exports.testDateAcceptedNotification = testDateAcceptedNotification;
+module.exports.testDateReminderNotification = testDateReminderNotification;
+module.exports.testSecurityNotification = testSecurityNotification;
+module.exports.testPaymentNotification = testPaymentNotification;
 
 // Run tests if file is executed directly
 if (require.main === module) {

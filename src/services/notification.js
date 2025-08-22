@@ -399,6 +399,34 @@ class NotificationService {
     }
 
     /**
+     * Delete all notifications of a specific type for a user
+     */
+    async deleteNotificationsByType(userId, type) {
+        try {
+            const result = await Notification.deleteMany({
+                userId,
+                type
+            });
+
+            if (result.deletedCount > 0) {
+                // Invalidate cache
+                await this.invalidateUserCache(userId);
+                
+                // Record metric for bulk deletion
+                await MetricsCollector.recordNotificationDeleted();
+            }
+
+            return {
+                deletedCount: result.deletedCount,
+                success: result.deletedCount > 0
+            };
+        } catch (error) {
+            Logger.error('Error deleting notifications by type:', error, { userId, type });
+            throw error;
+        }
+    }
+
+    /**
      * Get unread notifications count
      */
     async getUnreadCount(userId, type = null) {
@@ -417,16 +445,11 @@ class NotificationService {
     async getGroupedNotifications(userId, options = {}) {
         try {
             const { includeRead = false, limit = 10 } = options;
+        
             
-            // Build the match stage for the aggregation pipeline
-            const matchStage = { userId };
-            if (!includeRead) {
-                matchStage.readStatus = false;
-            }
-
             // Aggregation pipeline to group by type and get the most recent notification
             const pipeline = [
-                { $match: matchStage },
+                { $match: { userId } }, // Match all notifications for user first
                 { $sort: { createdAt: -1 } }, // Sort by newest first
                 {
                     $group: {
@@ -457,12 +480,31 @@ class NotificationService {
                             }
                         }
                     }
-                },
-                { $sort: { 'notification.createdAt': -1 } }, // Sort groups by most recent notification
-                { $limit: limit } // Limit number of groups returned
+                }
             ];
 
+            // Add filter stage for unread-only groups if includeRead is false
+            if (!includeRead) {
+                console.log('Adding filter for hasUnread: true');
+                pipeline.push({
+                    $match: { hasUnread: true } // Only include groups that have unread notifications
+                });
+            }
+
+            // Add final sorting and limiting
+            pipeline.push(
+                { $sort: { 'notification.createdAt': -1 } }, // Sort groups by most recent notification
+                { $limit: limit } // Limit number of groups returned
+            );
+
+            console.log('Final pipeline:', JSON.stringify(pipeline, null, 2));
+
             const groups = await Notification.aggregate(pipeline);
+            
+            console.log('Groups returned:', groups.length);
+            groups.forEach(group => {
+                console.log(`Group ${group.type}: unreadCount=${group.unreadCount}, hasUnread=${group.hasUnread}`);
+            });
 
             return { groups };
         } catch (error) {
@@ -586,6 +628,82 @@ class NotificationService {
             return result;
         } catch (error) {
             Logger.error('Error cleaning up expired notifications:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Admin cleanup notifications with advanced options
+     */
+    async cleanupNotifications(options = {}) {
+        try {
+            const { 
+                olderThanDays = 90, 
+                keepRead = false, 
+                dryRun = true,
+                types = null 
+            } = options;
+
+            // Calculate the cutoff date
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
+
+            // Build query
+            const query = {
+                createdAt: { $lt: cutoffDate }
+            };
+
+            // If keepRead is false, only delete unread notifications
+            if (!keepRead) {
+                query.readStatus = false;
+            }
+
+            // If types are specified, only delete those types
+            if (types && Array.isArray(types) && types.length > 0) {
+                query.type = { $in: types };
+            }
+
+            if (dryRun) {
+                // Just count what would be deleted
+                const count = await Notification.countDocuments(query);
+                Logger.info(`Dry run: Would delete ${count} notifications`, { 
+                    olderThanDays, 
+                    keepRead, 
+                    types 
+                });
+                
+                return {
+                    dryRun: true,
+                    deletedCount: count,
+                    query,
+                    olderThanDays,
+                    keepRead,
+                    types
+                };
+            } else {
+                // Actually delete the notifications
+                const result = await Notification.deleteMany(query);
+                
+                Logger.info(`Cleanup completed: Deleted ${result.deletedCount} notifications`, { 
+                    olderThanDays, 
+                    keepRead, 
+                    types 
+                });
+                
+                if (result.deletedCount > 0) {
+                    await MetricsCollector.recordNotificationCleanup(result.deletedCount);
+                }
+
+                return {
+                    dryRun: false,
+                    deletedCount: result.deletedCount,
+                    olderThanDays,
+                    keepRead,
+                    types
+                };
+            }
+        } catch (error) {
+            Logger.error('Error during notification cleanup:', error);
             throw error;
         }
     }

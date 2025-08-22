@@ -2,7 +2,7 @@ const axios = require('axios');
 
 class NotificationClient {
     constructor(config = {}) {
-        this.baseURL = config.baseURL || process.env.NOTIFICATION_SERVICE_URL || 'https://notifications-v845.onrender.com';
+        this.baseURL = config.baseURL || 'http://localhost:3001';
         this.apiKey = config.apiKey || process.env.SYSTEM_API_KEY || '319f4d26e31c1a4c0b44e2a8dff8b2e8c83136557af36f9260c75ea3ca9164e8';
         this.timeout = config.timeout || 30000;
         this.retries = config.retries || 3;

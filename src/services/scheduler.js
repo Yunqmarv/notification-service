@@ -35,7 +35,9 @@ class JobScheduler {
 
     scheduleJob(name, schedule, task) {
         if (this.jobs.has(name)) {
-            this.jobs.get(name).destroy();
+            const existingJob = this.jobs.get(name);
+            existingJob.stop();
+            this.jobs.delete(name);
         }
 
         const job = cron.schedule(schedule, task, {
@@ -69,7 +71,8 @@ class JobScheduler {
 
     removeJob(name) {
         if (this.jobs.has(name)) {
-            this.jobs.get(name).destroy();
+            const job = this.jobs.get(name);
+            job.stop();
             this.jobs.delete(name);
             Logger.info(`Removed job '${name}'`);
             return true;
@@ -84,10 +87,15 @@ class JobScheduler {
     shutdown() {
         Logger.info('Shutting down job scheduler...');
         for (const [name, job] of this.jobs) {
-            job.destroy();
-            Logger.info(`Destroyed job '${name}'`);
+            try {
+                job.stop();
+                Logger.info(`Stopped job '${name}'`);
+            } catch (error) {
+                Logger.error(`Error stopping job '${name}':`, error);
+            }
         }
         this.jobs.clear();
+        Logger.info('Job scheduler shutdown complete');
     }
 }
 
