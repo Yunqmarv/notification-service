@@ -22,6 +22,7 @@ const SwaggerService = require('./config/swagger');
 const JobScheduler = require('./services/scheduler');
 const WebSocketNotifier = require('./services/websocketNotifier');
 const EmailDeliveryService = require('./services/emailDelivery');
+const GrpcNotificationServer = require('./grpc/server');
 
 // Import routes
 const notificationRoutes = require('./routes/notifications');
@@ -35,6 +36,7 @@ class NotificationMicroservice {
     constructor() {
         this.app = express();
         this.server = null;
+        this.grpcServer = null;
         this.isShuttingDown = false;
         this.connections = new Set();
     }
@@ -64,6 +66,10 @@ class NotificationMicroservice {
             
             // Initialize email delivery service
             await EmailDeliveryService.initialize();
+            
+            // Initialize gRPC server
+            this.grpcServer = new GrpcNotificationServer();
+            await this.grpcServer.initialize();
             
             // Setup Express middleware
             this.setupMiddleware();
@@ -245,6 +251,11 @@ class NotificationMicroservice {
                     connection.destroy();
                 }
 
+                // Stop gRPC server
+                if (this.grpcServer) {
+                    await this.grpcServer.stop();
+                }
+
                 // Stop job scheduler
                 await JobScheduler.shutdown();
 
@@ -291,6 +302,7 @@ class NotificationMicroservice {
         const port = SettingsService.get('server.port', 3001);
         const host = SettingsService.get('server.host', '0.0.0.0');
 
+        // Start HTTP server
         this.server = this.app.listen(port, host, () => {
             Logger.info(`🌟 Notification Microservice running on http://${host}:${port}`);
             Logger.info(`📖 API Documentation available at http://${host}:${port}/api-docs`);
@@ -301,6 +313,17 @@ class NotificationMicroservice {
         this.server.on('error', (error) => {
             Logger.error('Server error:', error);
         });
+
+        // Start gRPC server
+        if (this.grpcServer) {
+            try {
+                await this.grpcServer.start();
+                Logger.info(`🚀 gRPC Server started on port ${this.grpcServer.port || 50051}`);
+            } catch (error) {
+                Logger.error('Failed to start gRPC server:', error);
+                // Don't fail the entire service if gRPC fails
+            }
+        }
 
         return this.server;
     }

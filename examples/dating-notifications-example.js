@@ -1209,7 +1209,7 @@ async function testDateAcceptedNotification(service) {
         venue_name: randomVenue,
         venue_address: `${getRandomNumber(100, 999)} ${getRandomElement(['Main', 'First', 'Second', 'Market', 'Oak'])} Street`,
         acceptance_message: "Looking forward to it! This sounds like so much fun!",
-        next_steps: ["Exchange contact info", "Confirm meeting time", "Check weather"],
+        next_steps: ["Get in touch with your Date", "Confirm meeting time", "Check weather"],
         reminder_set: true
     };
     

@@ -71,11 +71,11 @@ class WebSocketNotifier {
                     channel: `user:${userId}`
                 };
 
-                Logger.debug('Sending WebSocket notification', {
-                    userId,
-                    wsUrl,
-                    attempt
-                });
+                // Logger.debug('Sending WebSocket notification', {
+                //     userId,
+                //     wsUrl,
+                //     attempt
+                // });
 
                 const response = await axios.post(wsUrl, payload, {
                     timeout: 5000,

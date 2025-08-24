@@ -170,6 +170,22 @@ class MetricsCollector {
             help: 'Redis memory usage in bytes',
             registers: [this.register]
         });
+
+        // gRPC metrics
+        this.metrics.grpcRequests = new client.Counter({
+            name: 'grpc_requests_total',
+            help: 'Total number of gRPC requests',
+            labelNames: ['method', 'status'],
+            registers: [this.register]
+        });
+
+        this.metrics.grpcRequestDuration = new client.Histogram({
+            name: 'grpc_request_duration_seconds',
+            help: 'Duration of gRPC requests in seconds',
+            labelNames: ['method', 'status'],
+            buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+            registers: [this.register]
+        });
     }
 
     // HTTP Metrics
@@ -275,6 +291,19 @@ class MetricsCollector {
         if (!this.initialized) return;
         
         this.metrics.websocketMessages.inc({ type, status });
+    }
+
+    // gRPC Metrics
+    async recordGrpcRequest(method, status = 'success', duration) {
+        if (!this.initialized) return;
+        
+        this.metrics.grpcRequests.inc({ method, status });
+        if (duration !== undefined) {
+            this.metrics.grpcRequestDuration.observe(
+                { method, status },
+                duration / 1000
+            );
+        }
     }
 
     // Business Metrics

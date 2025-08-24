@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package notification;
+
+service NotificationService {
+  // Create a notification
+  rpc CreateNotification(CreateNotificationRequest) returns (NotificationResponse);
+  
+  // Send a security notification
+  rpc SendSecurityNotification(SecurityNotificationRequest) returns (NotificationResponse);
+  
+  // Send a system notification
+  rpc SendSystemNotification(SystemNotificationRequest) returns (NotificationResponse);
+  
+  // Send a match notification
+  rpc SendMatchNotification(MatchNotificationRequest) returns (NotificationResponse);
+  
+  // Send a message notification
+  rpc SendMessageNotification(MessageNotificationRequest) returns (NotificationResponse);
+  
+  // Send a payment notification
+  rpc SendPaymentNotification(PaymentNotificationRequest) returns (NotificationResponse);
+  
+  // Send a like notification
+  rpc SendLikeNotification(LikeNotificationRequest) returns (NotificationResponse);
+  
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Base notification message
+message CreateNotificationRequest {
+  string user_id = 1;
+  string title = 2;
+  string message = 3;
+  string type = 4;
+  string priority = 5;
+  map<string, string> metadata = 6;
+  Channels channels = 7;
+  Scheduling scheduling = 8;
+}
+
+// Security notification specific request
+message SecurityNotificationRequest {
+  string user_id = 1;
+  string title = 2;
+  string message = 3;
+  string security_event_id = 4;
+  string security_event_type = 5; // 'login', 'password_change', 'suspicious_activity'
+  DeviceInfo device_info = 6;
+  string ip_address = 7;
+  string location = 8;
+  string action_taken = 9;
+  bool action_required = 10;
+}
+
+// System notification request
+message SystemNotificationRequest {
+  string user_id = 1;
+  string title = 2;
+  string message = 3;
+  string category = 4;
+  string priority = 5;
+  bool push = 6;
+  bool email = 7;
+  string action = 8;
+  map<string, string> data = 9;
+}
+
+// Match notification request
+message MatchNotificationRequest {
+  string user_id = 1;
+  string match_id = 2;
+  string partner_id = 3;
+  string partner_name = 4;
+  string profile_picture = 5;
+  bool email_notifications = 6;
+}
+
+// Message notification request
+message MessageNotificationRequest {
+  string user_id = 1;
+  string message_id = 2;
+  string sender_id = 3;
+  string sender_name = 4;
+  string conversation_id = 5;
+  string preview = 6;
+  bool email_notifications = 7;
+}
+
+// Payment notification request
+message PaymentNotificationRequest {
+  string user_id = 1;
+  string payment_id = 2;
+  double amount = 3;
+  string currency = 4;
+  bool success = 5;
+  string message = 6;
+}
+
+// Like notification request
+message LikeNotificationRequest {
+  string user_id = 1;
+  string like_id = 2;
+  string liker_id = 3;
+  string liker_name = 4;
+  string profile_picture = 5;
+  bool email_notifications = 6;
+}
+
+// Device info for security notifications
+message DeviceInfo {
+  string device_type = 1;
+  string browser = 2;
+  string os = 3;
+  string fingerprint = 4;
+}
+
+// Notification channels
+message Channels {
+  bool push = 1;
+  bool email = 2;
+  bool websocket = 3;
+  bool in_app = 4;
+  bool sms = 5;
+}
+
+// Scheduling information
+message Scheduling {
+  bool immediate = 1;
+  string delivery_time = 2;
+}
+
+// Response message
+message NotificationResponse {
+  bool success = 1;
+  string message = 2;
+  string notification_id = 3;
+  string status = 4;
+  map<string, string> metadata = 5;
+}
+
+// Health check messages
+message HealthCheckRequest {
+  string service = 1;
+}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string status = 2;
+  string version = 3;
+  int64 uptime = 4;
+  map<string, string> details = 5;
+}

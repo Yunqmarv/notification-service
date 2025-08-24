@@ -262,7 +262,7 @@ class Logger {
             ...details
         };
 
-        this.info('Notification Event', logData);
+        // this.info('Notification Event', logData);
     }
 
     logWebSocketEvent(event, userId, details = {}) {
@@ -277,7 +277,7 @@ class Logger {
             ...details
         };
 
-        this.debug('WebSocket Event', logData);
+        // this.debug('WebSocket Event', logData);
     }
 
     logMetric(metricName, value, tags = {}) {
