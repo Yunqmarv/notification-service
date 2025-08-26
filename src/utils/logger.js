@@ -248,7 +248,7 @@ class Logger {
             timestamp: new Date().toISOString()
         };
 
-        this.debug('Cache Operation', logData);
+        // this.debug('Cache Operation', logData);
     }
 
     logNotificationEvent(event, notificationId, userId, details = {}) {

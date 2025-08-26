@@ -497,8 +497,6 @@ class NotificationService {
                 { $limit: limit } // Limit number of groups returned
             );
 
-            console.log('Final pipeline:', JSON.stringify(pipeline, null, 2));
-
             const groups = await Notification.aggregate(pipeline);
             
             console.log('Groups returned:', groups.length);
