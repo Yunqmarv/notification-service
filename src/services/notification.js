@@ -499,10 +499,10 @@ class NotificationService {
 
             const groups = await Notification.aggregate(pipeline);
             
-            console.log('Groups returned:', groups.length);
-            groups.forEach(group => {
-                console.log(`Group ${group.type}: unreadCount=${group.unreadCount}, hasUnread=${group.hasUnread}`);
-            });
+            // console.log('Groups returned:', groups.length);
+            // groups.forEach(group => {
+            //     console.log(`Group ${group.type}: unreadCount=${group.unreadCount}, hasUnread=${group.hasUnread}`);
+            // });
 
             return { groups };
         } catch (error) {
