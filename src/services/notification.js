@@ -485,7 +485,7 @@ class NotificationService {
 
             // Add filter stage for unread-only groups if includeRead is false
             if (!includeRead) {
-                console.log('Adding filter for hasUnread: true');
+                // console.log('Adding filter for hasUnread: true');
                 pipeline.push({
                     $match: { hasUnread: true } // Only include groups that have unread notifications
                 });
