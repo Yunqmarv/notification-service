@@ -20,15 +20,9 @@ class JobScheduler {
             // Implementation would be here
         });
 
-        // Generate analytics reports every hour
+        // Analytics report every hour
         this.scheduleJob('analytics-report', '0 * * * *', () => {
             Logger.info('Generating hourly analytics report');
-            // Implementation would be here
-        });
-
-        // Health check every 5 minutes
-        this.scheduleJob('health-check', '*/5 * * * *', () => {
-            Logger.debug('Running scheduled health check');
             // Implementation would be here
         });
     }

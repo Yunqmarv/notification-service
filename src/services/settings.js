@@ -16,7 +16,7 @@ class SettingsService {
             // Server Configuration
             {
                 key: 'server.port',
-                value: 3001,
+                value: 3000,
                 type: 'number',
                 category: 'server',
                 description: 'Server port number',
@@ -57,7 +57,7 @@ class SettingsService {
             // Redis Configuration
             {
                 key: 'redis.host',
-                value: 'redis-14594.c8.us-east-1-4.ec2.redns.redis-cloud.com',
+                value: 'redis',
                 type: 'string',
                 category: 'redis',
                 description: 'Redis server host',
@@ -67,7 +67,7 @@ class SettingsService {
             },
             {
                 key: 'redis.port',
-                value: 14594,
+                value: 6379,
                 type: 'number',
                 category: 'redis',
                 description: 'Redis server port',
@@ -77,7 +77,7 @@ class SettingsService {
             },
             {
                 key: 'redis.username',
-                value: 'default',
+                value: '',
                 type: 'string',
                 category: 'redis',
                 description: 'Redis username',
@@ -86,7 +86,7 @@ class SettingsService {
             },
             {
                 key: 'redis.password',
-                value: 'MUCyQ3fj5taB2VYafGKzBNQlqWlfPqks',
+                value: 'redis123',
                 type: 'string',
                 category: 'redis',
                 description: 'Redis password',
@@ -117,7 +117,7 @@ class SettingsService {
             // CORS Configuration
             {
                 key: 'cors.allowedOrigins',
-                value: ['*'],
+                value: ['http://localhost:3000','http://localhost:3001','http://localhost:3002','http://localhost:3004','http://localhost:3006','http://localhost:3007','http://localhost:3008','http://localhost:3010','http://localhost:3012','http://localhost:3013','http://localhost:3015','http://localhost:3016','http://localhost:3017','http://localhost:3020','http://localhost:3021','http://localhost:5003','http://localhost:6379','http://localhost:8000','http://localhost:8080','http://localhost:9092','http://localhost:27017','http://localhost:3306','http://api-gateway:3000','http://acs-microservice:3000','http://ads-microservice:3000','http://auth-microservice:3004','http://chat-microservice:3000','http://date-microservice:3006','http://email-microservice:3000','http://gift-microservice:3000','http://logging-microservice:3012','http://notification-microservice:3000','http://payment-microservice:3000','http://websocket-microservice:3000','http://qrcode-microservice:80','http://recommendations-microservice:8001','http://universities-microservice:5000'],
                 type: 'array',
                 category: 'cors',
                 description: 'Allowed CORS origins',
@@ -355,6 +355,134 @@ class SettingsService {
                 description: 'Enable scheduled notifications',
                 isPublic: true,
                 isEditable: true
+            },
+
+            // Email Service Configuration
+            {
+                key: 'email.serviceUrl',
+                value: 'http://email-microservice:3000',
+                type: 'string',
+                category: 'email',
+                description: 'Email service URL',
+                isPublic: false,
+                isEditable: true,
+                validation: { required: true }
+            },
+            {
+                key: 'email.apiKey',
+                value: 'dating-app-email-service-2025-secure-keyeniola',
+                type: 'string',
+                category: 'email',
+                description: 'Email service API key',
+                isPublic: false,
+                isEditable: true,
+                validation: { required: true }
+            },
+            {
+                key: 'email.timeout',
+                value: 10000,
+                type: 'number',
+                category: 'email',
+                description: 'Email service timeout (ms)',
+                isPublic: false,
+                isEditable: true,
+                validation: { min: 1000, max: 60000 }
+            },
+            {
+                key: 'email.retries',
+                value: 3,
+                type: 'number',
+                category: 'email',
+                description: 'Email service retry attempts',
+                isPublic: false,
+                isEditable: true,
+                validation: { min: 0, max: 10 }
+            },
+            {
+                key: 'email.retryDelay',
+                value: 1000,
+                type: 'number',
+                category: 'email',
+                description: 'Email service retry delay (ms)',
+                isPublic: false,
+                isEditable: true,
+                validation: { min: 100, max: 10000 }
+            },
+
+            // User Service Configuration
+            {
+                key: 'services.userService.url',
+                value: 'https://app.marville.ca',
+                type: 'string',
+                category: 'services',
+                description: 'User service URL',
+                isPublic: false,
+                isEditable: true,
+                validation: { required: true }
+            },
+            {
+                key: 'services.userService.timeout',
+                value: 10000,
+                type: 'number',
+                category: 'services',
+                description: 'User service timeout (ms)',
+                isPublic: false,
+                isEditable: true,
+                validation: { min: 1000, max: 60000 }
+            },
+            {
+                key: 'services.userService.retries',
+                value: 3,
+                type: 'number',
+                category: 'services',
+                description: 'User service retry attempts',
+                isPublic: false,
+                isEditable: true,
+                validation: { min: 0, max: 10 }
+            },
+            {
+                key: 'services.userService.retryDelay',
+                value: 1000,
+                type: 'number',
+                category: 'services',
+                description: 'User service retry delay (ms)',
+                isPublic: false,
+                isEditable: true,
+                validation: { min: 100, max: 10000 }
+            },
+
+            // Application Settings
+            {
+                key: 'app.name',
+                value: 'Dating App',
+                type: 'string',
+                category: 'app',
+                description: 'Application name',
+                isPublic: true,
+                isEditable: true,
+                validation: { required: true }
+            },
+            {
+                key: 'app.url',
+                value: 'http://localhost:3021',
+                type: 'string',
+                category: 'app',
+                description: 'Application URL',
+                isPublic: true,
+                isEditable: true,
+                validation: { required: true }
+            },
+
+            // Admin API Key (using server.secret.socket as expected by validation middleware)
+            {
+                key: 'server.secret.socket',
+                value: '319f4d26e31c1a4c0b44e2a8dff8b2e8c83136557af36f9260c75ea3ca9164e8',
+                type: 'string',
+                category: 'server',
+                description: 'Admin API key for authentication',
+                isPublic: false,
+                isEditable: true,
+                validation: { required: true, minLength: 32 }
             }
         ];
     }
